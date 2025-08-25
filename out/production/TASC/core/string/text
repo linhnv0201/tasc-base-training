@@ -1,0 +1,91 @@
+String
+1. String
+    Là immutable (bất biến). Mỗi lần thay đổi → tạo object mới trong heap hoặc string pool.
+    Ưu điểm: an toàn, dễ dùng, hashcode cố định (dùng tốt trong HashMap).
+    Nhược điểm: thay đổi nhiều lần → tốn bộ nhớ, hiệu năng thấp.
+    Dùng khi: dữ liệu chuỗi ít thay đổi.
+
+    String s = " Hello Java ";
+
+    s.length();              // 11
+    s.charAt(1);             // 'H'
+    s.indexOf("Java");       // 7
+    s.lastIndexOf("a");      // 10
+    s.substring(0, 5);       // " Hello"
+    s.concat(" World");      // " Hello Java  World"
+    s.toUpperCase();         // " HELLO JAVA "
+    s.toLowerCase();         // " hello java "
+    s.trim();                // "Hello Java"
+    s.replace("Java", "C++");// " Hello C++ "
+    s.startsWith(" He");     // true
+    s.endsWith("va ");       // true
+    s.equals(" Hello Java "); // true
+    s.equalsIgnoreCase(" hello java "); // true
+    s.isEmpty();             // false
+    s.split(" ");            // ["", "Hello", "Java", ""]
+
+2. StringBuilder
+    Là mutable (có thể thay đổi nội dung).
+    Không đồng bộ (non-synchronized).
+    Nhanh, tiết kiệm bộ nhớ hơn String nếu thao tác thay đổi chuỗi nhiều.
+    Dùng khi: ứng dụng 1 thread, cần hiệu năng cao.
+
+    StringBuilder sb = new StringBuilder("Hello");
+
+    sb.append(" World");      // "Hello World"
+    sb.insert(5, " Java");    // "Hello Java World"
+    sb.replace(6, 10, "C++"); // "Hello C++ World" (thay thế đoạn [6,10))
+    sb.delete(5, 9);          // "HelloWorld" (xóa đoạn [5,9))
+    sb.deleteCharAt(5);       // "Helloorld"
+    sb.reverse();             // "dlrowolleH"
+    sb.setCharAt(0, 'h');     // "helloorld"
+    sb.capacity();            // dung lượng bộ nhớ hiện tại
+    sb.length();              // độ dài hiện tại
+    sb.toString();            // chuyển về String thường
+
+3. StringBuffer
+    Cũng mutable như StringBuilder.
+    Nhưng đồng bộ (synchronized) → thread-safe.
+    Hiệu năng chậm hơn StringBuilder vì phải xử lý đồng bộ.
+    Dùng khi: đa luồng, nhiều thread cùng thao tác chuỗi.
+
+    StringBuffer sbf = new StringBuffer("Hello");
+
+    sbf.append(" World");      // "Hello World"
+    sbf.insert(5, " Java");    // "Hello Java World"
+    sbf.replace(6, 10, "C++"); // "Hello C++ World"
+    sbf.delete(5, 9);          // "HelloWorld"
+    sbf.reverse();             // "dlroWolleH"
+    sbf.capacity();            // dung lượng hiện tại
+    sbf.length();              // độ dài
+
+
+| Đặc điểm     | String (immutable)       | StringBuilder (mutable)         | StringBuffer (mutable)         |
+|--------------|--------------------------|---------------------------------|--------------------------------|
+| Tính chất    | Bất biến (immutable)     | Có thể thay đổi (mutable)       | Có thể thay đổi (mutable)      |
+| Thread-safe  | ✅ (vì bất biến)          | ❌ Không thread-safe             | ✅ Thread-safe (synchronized)  |
+| Hiệu năng    | Chậm nếu thay đổi nhiều  | Nhanh (không đồng bộ)            | Chậm hơn Builder (do đồng bộ)  |
+| Dùng khi     | Chuỗi ít thay đổi        | Chuỗi thay đổi nhiều, trong 1 thread | Chuỗi thay đổi nhiều, trong môi trường đa luồng |
+| Ví dụ        | String s = "abc";        | new StringBuilder("abc")        | new StringBuffer("abc")        |
+
+
+Các kiểu so sánh:
+ So sánh nội dung chuỗi: equals(), equalsIgnoreCase() -> trả về true/ false
+ So sánh theo thứ tự từ điển compareTo() Trả về: 0 → 2 chuỗi bằng nhau / < 0 → chuỗi 1 nhỏ hơn chuỗi 2 / > 0 → chuỗi 1 lớn hơn chuỗi 2
+ So sánh == so sánh địa chỉ ô nhớ
+
+String Pool trong Java
+1. Khái niệm
+    String Pool (hay String Intern Pool) là một vùng nhớ đặc biệt trong Heap của JVM, dùng để lưu trữ các chuỗi hằng số (String literals).
+    Khi bạn tạo chuỗi bằng dấu nháy kép "...", JVM sẽ kiểm tra String Pool:
+    Nếu đã tồn tại chuỗi giống hệt → JVM tái sử dụng chuỗi đó.
+    Nếu chưa tồn tại → JVM sẽ tạo mới và đưa vào Pool.
+    -> Giúp tiết kiệm bộ nhớ và tăng hiệu suất.
+
+            String s1 = "Java";
+            String s2 = "Java";
+            String s3 = new String("Java");
+
+            System.out.println(s1 == s2); // true  (cùng String Pool)
+            System.out.println(s1 == s3); // false (s3 là object mới trong heap)
+            System.out.println(s1.equals(s3)); // true (so nội dung)

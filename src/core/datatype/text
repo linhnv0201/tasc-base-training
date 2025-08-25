@@ -1,0 +1,40 @@
+1. Kiểu dữ liệu nguyên thủy (Primitive type)
+    Là những kiểu dữ liệu cơ bản do Java cung cấp sẵn.
+    Lưu trực tiếp giá trị trong bộ nhớ stack.
+    Có 8 loại:
+        Số nguyên (Integer types): byte (1 byte lưu giá trị từ -2^8 -> 2^8-1) , short (2), int (4), long (8 bytes)
+        Số thực (Floating types): float (4), double(8 bytes)
+        Ký tự (char types): char (2 bytes)
+        Kiểu boolean : boolean (1 bit)
+
+    Nhanh, ít tốn bộ nhớ.
+    Không thể gán null.
+    Giá trị mặc định:
+        Số nguyên → 0
+        Số thực → 0.0
+        char → '\u0000' (ký tự rỗng)
+        boolean → false
+
+2. Kiểu dữ liệu đối tượng (Object / Wrapper class)
+    Là các class bao bọc (wrapper) tương ứng với từng primitive.
+    Ví dụ: Integer, Long, Float, Double, Character, Boolean, Byte, Short.
+    Lưu tham chiếu (reference) trong stack, trỏ tới object trong heap.
+    Có thể gán null.
+    Cung cấp nhiều method tiện ích (ví dụ: Integer.parseInt()).
+    Giá trị mặc định khi khai báo là null.
+
+3. Chuyển đổi giữa primitive và object
+    Boxing: primitive → object.
+    Unboxing: object → primitive.
+    Java hỗ trợ Auto-boxing / Auto-unboxing (chuyển đổi tự động).
+
+4. So sánh primitive và object
+    Primitive: dùng == để so sánh giá trị.
+    Object (wrapper):
+    == → so sánh tham chiếu (địa chỉ ô nhớ).
+    .equals() → so sánh giá trị bên trong.
+
+👉 Tóm lại:
+
+Primitive: nhanh, nhẹ, không null, dùng khi xử lý dữ liệu cơ bản.
+Object (Wrapper): linh hoạt, có thể null, có method hỗ trợ, dùng nhiều trong collection hoặc framework.

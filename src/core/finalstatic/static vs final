@@ -1,0 +1,46 @@
+
+1. Static
+    static là một từ khóa trong Java dùng để khai báo thuộc tính (biến) hoặc phương thức (method) thuộc về class chứ không phải đối tượng (object).
+        Nghĩa là:
+            Nếu biến không có static → mỗi object tạo ra sẽ có bản sao riêng.
+            Nếu biến/phương thức có static → tất cả object cùng dùng chung một bản.
+
+    Thuộc tính (biến) static
+    Dùng khi giá trị đó chung cho tất cả object trong class, thay vì mỗi object có một bản riêng.
+             Ví dụ thường gặp:
+                Biến đếm số lượng object đã tạo ra.
+                Hằng số chung cho toàn bộ chương trình (public static final double PI = 3.14159;).
+                Cấu hình dùng chung (ví dụ: tên công ty, version).
+
+     Phương thức static
+     Dùng khi hành động (method) không phụ thuộc vào trạng thái của object, mà chỉ liên quan đến class.
+            Ví dụ thường gặp:
+                Hàm tiện ích (Utility methods):
+                    Math.sqrt(), Math.max(a, b) → không cần tạo object Math.
+
+                Factory method (tạo object):
+                    Ví dụ: Integer.valueOf(5) → trả về một object Integer.
+
+                Các hàm chung cho cả hệ thống (không gắn với một object cụ thể).
+
+
+2. Final
+    final là một từ khóa trong Java, dùng để tạo ra các thành phần bất biến (không thay đổi được).
+
+    Nó có 3 cách dùng chính:
+        1. Biến final
+            Khi gán giá trị rồi thì không thể gán lại giá trị khác.
+            Nếu là kiểu nguyên thủy → giá trị cố định.
+            Nếu là object/array → không thể gán sang object khác, nhưng nội dung bên trong vẫn có thể thay đổi.
+
+        2. Phương thức final
+            Không cho phép lớp con override (ghi đè).
+
+        3. Lớp final
+            Không thể bị kế thừa. Ví dụ: String, Integer trong Java là các lớp final.
+
+3. Khác biệt giữa final và static
+   static: biến/method thuộc về class, dùng chung cho mọi object.
+   final: biến/method/lớp có tính bất biến (không được thay đổi hoặc kế thừa).
+   static final thường đi chung → tạo hằng số dùng chung toàn chương trình.
+        VD: public static final double PI = 3.14159;
