@@ -1,0 +1,21 @@
+4 Tính chất chính của OOP
+    Encapsulation (Đóng gói)
+        Gói dữ liệu (thuộc tính) và hành vi (phương thức) vào trong cùng một class.
+        Che giấu chi tiết bên trong, chỉ cho phép truy cập thông qua các phương thức công khai (getter/setter).
+        → Giúp bảo mật dữ liệu và dễ bảo trì.
+
+    Inheritance (Kế thừa)
+        Lớp con có thể kế thừa thuộc tính và phương thức của lớp cha.
+        Tái sử dụng code, mở rộng chức năng.
+        Quan hệ "is-a" (Dog is a Animal).
+
+    Polymorphism (Đa hình)
+        Một hành động có thể được thực hiện theo nhiều cách khác nhau.
+        Có 2 loại:
+            Overloading (đa hình tại compile-time – cùng tên method nhưng tham số khác nhau).
+            Overriding (đa hình tại runtime – lớp con ghi đè method của lớp cha).
+
+    Abstraction (Trừu tượng)
+        Ẩn đi chi tiết cài đặt, chỉ cung cấp những gì cần thiết cho người dùng.
+        Thực hiện qua abstract class hoặc interface.
+        Giúp tập trung vào cái gì đối tượng làm, hơn là làm như thế nào.
