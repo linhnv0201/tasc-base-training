@@ -1,0 +1,30 @@
+Đặc điểm Map Interface
+    Lưu trữ theo cặp key-value: mỗi key duy nhất, value có thể trùng lặp.
+    Truy cập theo key: nhanh chóng lấy value từ key.
+    Không triển khai Collection (Map là một interface riêng).
+    Các phương thức chính:
+        put(K key, V value) – thêm hoặc cập nhật key-value
+        get(Object key) – lấy value theo key
+        remove(Object key) – xóa entry theo key
+        containsKey(Object key) / containsValue(Object value)
+        keySet(), values(), entrySet() – duyệt keys, values, entries
+
+Các class triển khai Map Interface
+
+| Class                 | Đặc điểm / Khi dùng                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **HashMap**           | - Không bảo đảm thứ tự key.<br>- Truy cập, thêm, xóa nhanh O(1) trung bình.<br>- Khi thứ tự không quan trọng, cần hiệu năng cao.            |
+| **LinkedHashMap**     | - Bảo toàn **thứ tự chèn** hoặc thứ tự truy cập (dùng cho LRU cache).<br>- Khi cần thứ tự duy trì + hiệu năng nhanh.                        |
+| **TreeMap**           | - Tự động **sắp xếp key** theo thứ tự tự nhiên hoặc Comparator.<br>- Khi cần Map duy nhất theo thứ tự key.<br>- Thêm/xóa/tìm kiếm O(log n). |
+| **Hashtable**         | - Phiên bản cũ, **đồng bộ (synchronized)**.<br>- Khi cần thread-safe code cũ, nhưng hiện nay nên dùng `ConcurrentHashMap`.                  |
+| **ConcurrentHashMap** | - Map **thread-safe** hiệu quả, truy cập đồng thời.<br>- Khi nhiều thread đọc/ghi Map mà không khóa toàn bộ.                                |
+
+Tóm tắt khi dùng từng loại
+| Class             | Khi dùng chính                                                   |
+| ----------------- | ---------------------------------------------------------------- |
+| HashMap           | Khi **thứ tự key không quan trọng**, cần hiệu năng cao.          |
+| LinkedHashMap     | Khi cần **giữ thứ tự chèn** hoặc thứ tự truy cập (LRU).          |
+| TreeMap           | Khi cần **sắp xếp key tự động** theo thứ tự.                     |
+| Hashtable         | Khi code cũ cần **thread-safe**, hiện ít dùng.                   |
+| ConcurrentHashMap | Khi nhiều thread thao tác trên Map **đồng thời**, cần hiệu năng. |
+

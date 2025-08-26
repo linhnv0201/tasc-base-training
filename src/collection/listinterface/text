@@ -1,0 +1,40 @@
+List Interface trong Java
+    List nằm trong Java Collections Framework, thuộc package java.util.
+    Kế thừa từ Collection<E>, nên có đầy đủ đặc điểm của Collection.
+    List là một tập hợp (collection) có thứ tự (ordered) và có thể chứa phần tử trùng lặp (duplicate).
+
+Đặc điểm chính của List
+    Có thứ tự (Ordered)
+        Các phần tử trong List được lưu theo thứ tự chèn (insertion order).
+        Có thể truy cập phần tử bằng chỉ số (index) bắt đầu từ 0.
+    Cho phép phần tử trùng lặp (Duplicate Allowed)
+        Khác với Set (không cho phép trùng), List có thể chứa nhiều phần tử giống nhau.
+    Hỗ trợ truy cập theo chỉ số
+        Có thể truy cập trực tiếp phần tử qua get(index), thay đổi bằng set(index, value).
+        Đây là đặc điểm mà Set không có.
+    Các phương thức bổ sung so với Collection
+        Ngoài các phương thức chung (add, remove, size, iterator…), List còn có thêm:
+            void add(int index, E element) → chèn phần tử tại vị trí chỉ định
+            E get(int index) → lấy phần tử theo chỉ số
+            E set(int index, E element) → cập nhật phần tử tại vị trí index
+            E remove(int index) → xóa phần tử theo chỉ số
+            int indexOf(Object o) → tìm vị trí xuất hiện đầu tiên
+            int lastIndexOf(Object o) → tìm vị trí xuất hiện cuối cùng
+            List<E> subList(int fromIndex, int toIndex) → tạo danh sách con
+
+Các class triển khai List Interface
+| Class                 | Khi nào dùng                                                  | Cấu trúc bên trong             | Tốc độ truy cập (get)      | Thêm/xóa cuối               | Thêm/xóa giữa                                      | Đồng bộ (Thread-safe)          |
+|---------------------- | ------------------------------------------------------------- | ------------------------------ | -------------------------- | --------------------------- | -------------------------------------------------- | ------------------------------ |
+| ArrayList             | Khi cần truy cập nhanh,dữ liệu chủ yếu đọc             | Mảng động<br>(Dynamic Array)   | ✅ Rất nhanh (O(1))         | ✅ Nhanh<br>(O(1) amortized) | ❌ Chậm (O(n))                                      | ❌ Không đồng bộ                |
+| LinkedList**          | Khi cần **thêm/xóa nhiều**                                    | Danh sách<br>liên kết đôi      | ❌ Chậm (O(n))              | ✅ Nhanh (O(1))              | ⚠️ Trung bình (O(n))<br>nhưng xóa ở đầu/cuối nhanh | ❌ Không đồng bộ                |
+| Vector**              | Khi cần **ArrayList nhưng**<br>**an toàn đa luồng (code cũ)** | Mảng động<br>(giống ArrayList) | ✅ Rất nhanh (O(1))         | ✅ Nhanh<br>(O(1) amortized) | ❌ Chậm (O(n))                                      | ✅ Có đồng bộ<br>(synchronized) |
+| Stack (extends Vector)| Khi cần **ngăn xếp (LIFO)**                                   | Mảng động<br>(dựa trên Vector) | ✅ Rất nhanh (O(1))         | ✅ Push/Pop nhanh (O(1))     | ❌ Không hỗ trợ tốt                                 | ✅ Có đồng bộ                   |
+| CopyOnWriteArrayList  | Khi **đọc nhiều, ghi ít**<br>**trong môi trường đa luồng**    | Mảng động<br>copy khi ghi      | ✅ Rất nhanh khi đọc (O(1)) | ❌ Ghi chậm<br>(copy mảng)   | ❌ Rất chậm                                         | ✅ Thread-safe<br>(dùng copy)   |
+
+| Collection               | Các phương thức hay dùng                                                                                                                                                                                                                                                                                                                | Ghi chú / Phương thức đặc thù                                            |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **ArrayList**            | `add(E e)`<br>`add(int index, E e)`<br>`addAll(Collection c)`<br>`get(int index)`<br>`set(int index, E e)`<br>`remove(int index)`<br>`remove(Object o)`<br>`size()`<br>`contains(Object o)`<br>`clear()`<br>`ensureCapacity(int minCapacity)`<br>`trimToSize()`                                                                         | `ensureCapacity()` / `trimToSize()` là riêng ArrayList để tối ưu mảng    |
+| **LinkedList**           | **List methods:** `add()`, `add(int index, E e)`, `get(int index)`, `set()`, `remove()`<br>**Deque/Queue methods:** `addFirst(E e)`, `addLast(E e)`, `getFirst()`, `getLast()`, `removeFirst()`, `removeLast()`, `peek()`, `peekFirst()`, `peekLast()`, `poll()`, `pollFirst()`, `pollLast()`, `offer()`, `offerFirst()`, `offerLast()` | Có thể dùng như **List + Deque + Queue**                                 |
+| **Vector**               | `add(E e)`, `add(int index, E e)`, `addAll(Collection c)`<br>`get(int index)`<br>`set(int index, E e)`<br>`remove(int index)`, `remove(Object o)`<br>`size()`, `contains(Object o)`<br>`clear()`<br>`firstElement()`, `lastElement()`, `elementAt(int index)`, `removeElement(Object o)`, `removeAllElements()`                         | Thread-safe (synchronized), giống ArrayList                              |
+| **Stack**                | `push(E e)`, `pop()`, `peek()`, `empty()`, `search(Object o)`<br>Kế thừa từ Vector: `add()`, `remove()`, `get()`                                                                                                                                                                                                                        | Dùng cho **LIFO**, thao tác đỉnh stack                                   |
+| **CopyOnWriteArrayList** | `add(E e)`, `add(int index, E e)`, `addAll(Collection c)`<br>`get(int index)`, `set(int index, E e)`<br>`remove(int index)`, `remove(Object o)`<br>`size()`, `contains(Object o)`<br>`clear()`                                                                                                                                          | Thread-safe, **ghi chậm nhưng đọc rất nhanh**, copy toàn bộ mảng khi ghi |

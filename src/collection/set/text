@@ -1,0 +1,27 @@
+Set Interface (java.util.Set)
+    Đặc điểm
+        Không chứa phần tử trùng lặp.
+        Không bảo đảm thứ tự lưu trữ (tùy class triển khai).
+        Không hỗ trợ truy cập theo index.
+        Thường dùng để lưu tập hợp duy nhất các phần tử.
+    Các phương thức quan trọng
+        | Method               | Ý nghĩa                                    |
+        | -------------------- | ------------------------------------------ |
+        | `add(E e)`           | Thêm phần tử, nếu trùng lặp thì không thêm |
+        | `remove(Object o)`   | Xóa phần tử                                |
+        | `contains(Object o)` | Kiểm tra phần tử có tồn tại không          |
+        | `size()`             | Số lượng phần tử                           |
+        | `isEmpty()`          | Kiểm tra rỗng                              |
+        | `clear()`            | Xóa tất cả phần tử                         |
+    Các class phổ biến triển khai từ Set Interface
+| Class             | Đặc điểm / Khi dùng                                                                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **HashSet**       | - Không bảo đảm thứ tự.<br>- Thêm/xóa/tìm kiếm nhanh O(1).<br>- Khi cần tập hợp duy nhất, hiệu năng cao.                                     |
+| **LinkedHashSet** | - Bảo toàn thứ tự chèn.<br>- Khi cần tập hợp duy nhất nhưng giữ thứ tự, vẫn cần hiệu năng nhanh.                                             |
+| **TreeSet**       | - Tự động sắp xếp theo thứ tự tự nhiên hoặc Comparator.<br>- Thêm/xóa/tìm kiếm O(log n).<br>- Khi cần tập hợp duy nhất và có thứ tự sắp xếp. |
+
+| Class             | Thứ tự lưu trữ  | Thêm/Xóa/Tìm kiếm                                | Bộ nhớ                                           | Khi dùng chính                                     |
+| ----------------- | --------------- | ------------------------------------------------ | ------------------------------------------------ | -------------------------------------------------- |
+| **HashSet**       | Không xác định  | O(1) trung bình                                  | Thấp (chỉ mảng + bucket)                         | Khi **thứ tự không quan trọng**, cần hiệu năng cao |
+| **LinkedHashSet** | Giữ thứ tự chèn | O(1) trung bình (nhẹ hơn HashSet do linked list) | Cao hơn HashSet (thêm prev/next cho linked list) | Khi cần **thứ tự chèn + tốc độ gần HashSet**       |
+| **TreeSet**       | Tự động sắp xếp | O(log n)                                         | Cao (cấu trúc cây)                               | Khi cần **tập hợp duy nhất và tự sắp xếp**         |

@@ -1,0 +1,56 @@
+Queue Interface (java.util.Queue)
+    Queue là một interface trong package java.util, đại diện cho một hàng đợi (queue).
+    Đặc điểm:
+        FIFO: Phần tử được thêm vào cuối và lấy ra từ đầu.
+        Không thể truy cập trực tiếp theo index như List.
+        Không chứa các phương thức random access (như get(index)).
+        Các phương thức quan trọng:
+            add(E e) / offer(E e) → thêm phần tử vào queue
+            remove() / poll() → xóa và trả về phần tử đầu
+            element() / peek() → lấy phần tử đầu nhưng không xóa
+        Các class triển khai phổ biến: LinkedList, PriorityQueue, ArrayDeque.
+        | Class           | Khi nào dùng                                                                                 |
+        | --------------- | -------------------------------------------------------------------------------------------- |
+        | `LinkedList`    | Queue thông thường, cần thao tác FIFO, có thể làm deque luôn                                 |
+        | `PriorityQueue` | Queue theo thứ tự ưu tiên (không theo FIFO), thích hợp cho heap/priority scheduling          |
+        | `ArrayDeque`    | Queue hiệu năng cao, không giới hạn, thay thế `LinkedList` khi không cần truy cập theo index |
+
+
+Deque Interface (java.util.Deque)
+    Đặc điểm:
+        Double-Ended Queue: Thêm/xóa được cả đầu và cuối.
+        Kế thừa Queue, nên có tất cả phương thức của Queue.
+        Hỗ trợ cả LIFO (stack) và FIFO (queue).
+        Các phương thức quan trọng:
+            Thêm: addFirst(E e), addLast(E e), offerFirst(E e), offerLast(E e)
+            Lấy/xóa: removeFirst(), removeLast(), pollFirst(), pollLast()
+            Lấy nhưng không xóa: getFirst(), getLast(), peekFirst(), peekLast()
+        Các class triển khai phổ biến: LinkedList, ArrayDeque.
+        | Class        | Khi nào dùng                                                                     |
+        | ------------ | -------------------------------------------------------------------------------- |
+        | `LinkedList` | Deque linh hoạt, cả FIFO và LIFO, thêm/xóa đầu/cuối dễ dàng                      |
+        | `ArrayDeque` | Deque hiệu năng cao, thay thế `Stack` và `LinkedList` khi không cần synchronized |
+
+
+Tóm tắt sự khác biệt Queue vs Deque:
+| Tiêu chí       | Queue                                       | Deque                                 |
+| -------------- | ------------------------------------------- | ------------------------------------- |
+| Truy cập       | Chỉ đầu/ cuối (FIFO)                        | Cả đầu và cuối                        |
+| Thứ tự         | FIFO                                        | FIFO hoặc LIFO                        |
+| Thêm/xóa       | Cuối/ đầu                                   | Cả đầu và cuối                        |
+| Class phổ biến | `LinkedList`, `PriorityQueue`, `ArrayDeque` | `LinkedList`, `ArrayDeque`            |
+| Khi dùng       | Task scheduling, hàng đợi thông thường      | Khi cần Queue + Stack, thao tác 2 đầu |
+
+Queue Interface
+Class
+| Class           | Khi dùng                                                        |
+| --------------- | --------------------------------------------------------------- |
+| `LinkedList`    | FIFO queue thông thường, thao tác đầu/cuối nhanh                |
+| `PriorityQueue` | Queue theo thứ tự ưu tiên (heap), không FIFO chuẩn              |
+| `ArrayDeque`    | Queue hiệu năng cao, thay LinkedList khi không cần synchronized |
+
+Deque Interface
+| Class        | Khi dùng                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `LinkedList` | Deque linh hoạt, hỗ trợ cả FIFO và LIFO, thêm/xóa đầu/cuối nhanh                         |
+| `ArrayDeque` | Hiệu năng cao, thay thế Stack hoặc LinkedList khi thao tác 2 đầu, không cần synchronized |
