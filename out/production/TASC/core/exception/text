@@ -1,0 +1,181 @@
+1. Phân biệt throw và throws
+    1️⃣ throw
+    Mục đích: Ném một exception cụ thể tại nơi nào đó trong method.
+    Chỉ ném 1 exception tại một thời điểm.
+    Dùng trong thân phương thức.
+    Cú pháp:
+        throw new ExceptionType("message");
+    Ví dụ:
+        void checkNumber(int n) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Negative number not allowed");
+            }
+        }
+    Khi gọi checkNumber(-5), sẽ ném exception ngay lập tức.
+
+    2️⃣ throws
+    Mục đích: Khai báo một hoặc nhiều exception mà method có thể ném ra.
+    Dùng ở phần khai báo method (signature).
+    Có thể khai báo nhiều exception, cách nhau bằng dấu ,.
+    Cú pháp:
+        void methodName() throws IOException, SQLException {
+            // code có thể ném exception
+        }
+    Ví dụ:
+    void readFile(String fileName) throws IOException {
+        FileReader fr = new FileReader(fileName); // có thể ném IOException
+    }
+    Caller của method này phải xử lý exception bằng try-catch hoặc tiếp tục throws.
+
+    3️⃣ So sánh nhanh
+
+    | Feature     | `throw`                      | `throws`                                |
+    | ----------- | ---------------------------- | --------------------------------------- |
+    | Mục đích    | Ném 1 exception cụ thể       | Khai báo exception mà method có thể ném |
+    | Vị trí dùng | Trong thân method            | Trong khai báo method                   |
+    | Số lượng    | 1 exception tại 1 thời điểm  | Nhiều exception cùng lúc được khai báo  |
+    | Cú pháp     | `throw new ExceptionType();` | `void method() throws ExceptionType;`   |
+
+2. Thế nào là checked và unchecked exception
+   Checked Exception
+    Định nghĩa: Exception bắt buộc phải xử lý bởi programmer, nếu không compile lỗi.
+    Vị trí: xảy ra trong thời gian biên dịch (compile-time).
+    Cách xử lý: dùng try-catch hoặc throws trong method.
+    Ví dụ điển hình:
+    IOException, FileNotFoundException, SQLException, ClassNotFoundException, InterruptedException
+    Ví dụ:
+
+        import java.io.File;
+        import java.io.FileNotFoundException;
+        import java.util.Scanner;
+
+        public class CheckedDemo {
+            public static void main(String[] args) {
+                try {
+                    Scanner sc = new Scanner(new File("abc.txt")); // có thể ném FileNotFoundException
+                } catch (FileNotFoundException e) {
+                    System.out.println("Caught Exception: " + e.getMessage());
+                }
+            }
+        }
+
+    2️⃣ Unchecked Exception
+    Định nghĩa: Exception không bắt buộc phải xử lý.
+    Vị trí: xảy ra trong thời gian chạy (runtime).
+    Thường là lỗi logic của chương trình.
+    Ví dụ điển hình:
+    ArithmeticException, NullPointerException, ArrayIndexOutOfBoundsException
+    Ví dụ:
+        public class UncheckedDemo {
+            public static void main(String[] args) {
+                int a = 10, b = 0;
+                int c = a / b; // ArithmeticException tại runtime
+                System.out.println(c);
+            }
+        }
+    Chương trình compile OK, nhưng khi chạy sẽ ném exception.
+
+    3️⃣ So sánh nhanh
+        | Feature             | Checked Exception                  | Unchecked Exception                       |
+        | ------------------- | ---------------------------------- | ----------------------------------------- |
+        | Thời điểm phát hiện | Compile-time                       | Runtime                                   |
+        | Bắt buộc xử lý      | ✅ phải try-catch hoặc throws        | ❌ không bắt buộc                        |
+        | Thường là           | Lỗi ngoài ý muốn (I/O, DB)         | Lỗi logic, sai sót lập trình              |
+        | Ví dụ               | IOException, FileNotFoundException | ArithmeticException, NullPointerException |
+
+3. try catch , try with resource khác nhau như thế nào ?
+https://viblo.asia/p/prefer-try-with-resources-to-try-finally-qPoL7ylN4vk
+
+1️⃣ Try-Catch
+    Cú pháp cơ bản:
+        try {
+            // code có thể ném exception
+        } catch(ExceptionType e) {
+            // xử lý exception
+        } finally {
+            // tùy chọn, code luôn chạy
+        }
+
+    Đặc điểm:
+    Chỉ xử lý exception.
+    Không cần tài nguyên đặc biệt (chỉ xử lý exception).
+    Nếu dùng resource (file, stream, DB connection…), phải tự đóng trong finally.
+    Dễ quên đóng resource → dễ gây leak.
+    Ví dụ:
+        import java.io.File;
+        import java.io.FileNotFoundException;
+        import java.util.Scanner;
+
+        public class DemoTryCatch {
+            public static void main(String[] args) {
+                Scanner sc = null;
+                try {
+                    sc = new Scanner(new File("abc.txt"));
+                    System.out.println(sc.nextLine());
+                } catch (FileNotFoundException e) {
+                    System.out.println("File not found!");
+                } finally {
+                    if (sc != null) {
+                        sc.close(); // phải tự đóng
+                    }
+                }
+            }
+        }
+
+2️⃣ Try-with-Resources
+    Cú pháp:
+        try (ResourceType resource = new ResourceType()) {
+            // code sử dụng resource
+        } catch(ExceptionType e) {
+            // xử lý exception
+        }
+
+    Đặc điểm:
+        Giới thiệu từ Java 7.
+        Resource tự động đóng khi try kết thúc, không cần finally.
+        Resource phải implement AutoCloseable hoặc Closeable.
+        Ví dụ:
+            import java.io.File;
+            import java.io.FileNotFoundException;
+            import java.util.Scanner;
+
+            public class DemoTryWithResources {
+                public static void main(String[] args) {
+                    try (Scanner sc = new Scanner(new File("abc.txt"))) {
+                        System.out.println(sc.nextLine());
+                    } catch (FileNotFoundException e) {
+                        System.out.println("File not found!");
+                    }
+                    // Scanner tự động đóng
+                }
+            }
+
+    3️⃣ So sánh nhanh
+    | Feature             | Try-Catch                    | Try-with-Resources              |
+    | ------------------- | ---------------------------- | ------------------------------- |
+    | Tự đóng resource    | ❌ phải tự đóng trong finally | ✅ tự động đóng khi try kết thúc |
+    | Thời gian xuất hiện | Java 1+                      | Java 7+                         |
+    | Cú pháp             | dài hơn nếu dùng resource    | ngắn gọn, an toàn hơn           |
+    | Resource bắt buộc   | không                        | phải implement `AutoCloseable`  |
+
+4. Tạo custom exception
+    Cách tạo Custom Exception
+    Bước 1: Tạo class mới kế thừa từ Exception (checked) hoặc RuntimeException (unchecked).
+    Bước 2: Tạo constructor nhận message hoặc không.
+    Bước 3: Sử dụng throw để ném exception này khi cần.
+
+    Demo ở 2 class DemoCustomUnchecked và DemoCustomChecked
+
+    | Loại Custom Exception | Kế thừa từ       | Cần xử lý?                        |
+    | --------------------- | ---------------- | --------------------------------- |
+    | Checked               | Exception        | ✅ Có, try-catch hoặc throws       |
+    | Unchecked             | RuntimeException | ❌ Không bắt buộc, runtime mới ném |
+
+5.Note
+    | Tiêu chí          | Compile-time (Biên dịch)                                  | Runtime (Thực thi)                                           |
+    | ----------------- | --------------------------------------------------------- | ------------------------------------------------------------ |
+    | **Thời điểm**     | Khi build code (`javac`)                                  | Khi chạy code (`java`)                                       |
+    | **Ai kiểm tra**   | Compiler (javac)                                          | JVM (Java Virtual Machine)                                   |
+    | **Lỗi phát hiện** | Cú pháp, kiểu dữ liệu, access modifier, Checked Exception | NullPointer, chia 0, array out of bound, file không tồn tại… |
+    | **Ví dụ**         | `int x = "abc";`                                          | `int y = 10/0;`                                              |
+    | **Ảnh hưởng**     | Không tạo ra file `.class`                                | Chương trình crash khi đang chạy                             |

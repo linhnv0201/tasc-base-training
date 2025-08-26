@@ -9,6 +9,7 @@
         Tái sử dụng code, mở rộng chức năng.
         Quan hệ "is-a" (Dog is a Animal).
 
+
     Polymorphism (Đa hình)
         Một hành động có thể được thực hiện theo nhiều cách khác nhau.
         Có 2 loại:
@@ -141,7 +142,7 @@
 | **Khả năng chứa dữ liệu   | Có thể chứa trạng thái (state)                         | Không chứa trạng thái, chỉ hằng số                                            |
 | **Hỗ trợ Java version     | Từ Java 1.0                                            | Từ Java 1.0; Java 8+ hỗ trợ default/static method                             |
 | **Đa kế thừa              | Không hỗ trợ đa kế thừa                                | Hỗ trợ đa kế thừa (implement nhiều interface)                                 |
-
+ Note: Concrete method = method bình thường với { ... } chứa logic thực thi.
 
     Trường hợp sử dụng
         Abstract class:

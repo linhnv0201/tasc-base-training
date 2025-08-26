@@ -1,0 +1,99 @@
+1. Cấp phát tĩnh (Static Allocation)
+    Định nghĩa: Bộ nhớ được cấp phát tại thời điểm biên dịch (compile-time).
+    Thường dùng cho: biến local, biến static, hằng số.
+    Kích thước cố định, không thay đổi trong quá trình chạy chương trình.
+    Vị trí lưu trữ: Stack (cho biến local) hoặc Method Area (cho static).
+    Ví dụ:
+        class Example {
+            static int count = 10; // static → cấp phát tĩnh
+            void method() {
+                int x = 5; // local variable → cấp phát tĩnh
+            }
+        }
+
+
+    ✅ Ưu điểm: nhanh, quản lý đơn giản.
+    ❌ Nhược điểm: không linh hoạt, không thay đổi kích thước khi chạy.
+
+2. Cấp phát động (Dynamic Allocation)
+    Định nghĩa: Bộ nhớ được cấp phát tại thời điểm chạy chương trình (runtime).
+    Thường dùng cho: đối tượng (object) và mảng.
+    Kích thước có thể thay đổi theo nhu cầu.
+    Vị trí lưu trữ: Heap.
+    Ví dụ:
+
+        class Example {
+            void method() {
+                int[] arr = new int[10];        // mảng cấp phát động
+                String str = new String("Hello"); // object cấp phát động
+            }
+        }
+
+
+    ✅ Ưu điểm: linh hoạt, quản lý đối tượng runtime.
+    ❌ Nhược điểm: quản lý phức tạp hơn, cần Garbage Collector (GC) dọn dẹp.
+
+3. So sánh nhanh
+    | Feature        | Cấp phát tĩnh (Static)       | Cấp phát động (Dynamic)     |
+    | -------------- | ---------------------------- | --------------------------- |
+    | Thời điểm      | Compile-time                 | Runtime                     |
+    | Kích thước     | Cố định                      | Có thể thay đổi             |
+    | Ví trí lưu trữ | Stack / Method Area          | Heap                        |
+    | Ví dụ          | int x = 5; static int count; | new Object(), new int\[10]; |
+    | Quản lý bộ nhớ | Đơn giản                     | Cần GC (Garbage Collector)  |
+
+4. Phân biệt bộ nhớ heap và bộ nhớ stack ?
+1️⃣ Stack
+    Chức năng: lưu trữ biến cục bộ (local variables) và primitive, cũng như tham chiếu tới đối tượng.
+    Cấp phát bộ nhớ: Tĩnh (Static Allocation).
+    Thời gian tồn tại: Ngắn, biến tự động bị giải phóng khi method kết thúc.
+    Quản lý: Java tự quản lý, không cần GC.
+    Truy cập: Nhanh, vì theo cơ chế LIFO (Last In First Out).
+    Kích thước: Nhỏ hơn Heap.
+    Ví dụ:
+        void method() {
+            int x = 5;           // primitive → stack
+            String str = "Hello"; // tham chiếu → stack, object nằm heap
+        }
+
+2️⃣ Heap
+    Chức năng: lưu trữ tất cả object và mảng.
+    Cấp phát bộ nhớ: Động (Dynamic Allocation).
+    Thời gian tồn tại: lâu, phụ thuộc Garbage Collector (GC) giải phóng khi object không còn reference.
+    Quản lý: Java sử dụng Garbage Collector để dọn dẹp.
+    Truy cập: Chậm hơn stack, cần tham chiếu thông qua pointer/reference.
+    Kích thước: Lớn hơn stack, đủ để chứa nhiều object.
+    Ví dụ:
+        void method() {
+            String str = new String("Hello"); // object nằm heap, str reference nằm stack
+        }
+
+3️⃣ So sánh nhanh
+    | Feature           | Stack                            | Heap                        |
+    | ----------------- | -------------------------------- | --------------------------- |
+    | Lưu trữ           | Biến local, primitive, reference | Object, mảng                |
+    | Cấp phát          | Tĩnh (compile-time)              | Động (runtime)              |
+    | Thời gian tồn tại | Ngắn, tự động                    | Dài, phụ thuộc GC           |
+    | Quản lý bộ nhớ    | Java tự quản lý                  | Garbage Collector           |
+    | Truy cập          | Nhanh (LIFO)                     | Chậm hơn (phải dereference) |
+    | Kích thước        | Nhỏ                              | Lớn                         |
+
+                  ┌───────────────────────────────┐
+                  │           Heap                │
+                  │  Object, Array                │
+                  │                               │
+                  │  strObject -> "Hello"         │
+                  │  arr -> [1,2,3]               │
+                  └───────────────────────────────┘
+                              ▲
+                              │ reference
+                              │
+                  ┌───────────────────────────────┐
+                  │           Stack               │
+                  │  Method call frames           │
+                  │-------------------------------│
+                  │ method()                      │
+                  │ int x = 5                     │
+                  │ String strRef -> strObject    │
+                  │ int[] numsRef -> arr          │
+                  └───────────────────────────────┘

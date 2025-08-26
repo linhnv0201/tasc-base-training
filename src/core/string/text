@@ -24,7 +24,7 @@ String
     s.isEmpty();             // false
     s.split(" ");            // ["", "Hello", "Java", ""]
 
-2. StringBuilder
+2. StringBuilder (dùng bộ nhớ đệm )
     Là mutable (có thể thay đổi nội dung).
     Không đồng bộ (non-synchronized).
     Nhanh, tiết kiệm bộ nhớ hơn String nếu thao tác thay đổi chuỗi nhiều.
@@ -43,7 +43,7 @@ String
     sb.length();              // độ dài hiện tại
     sb.toString();            // chuyển về String thường
 
-3. StringBuffer
+3. StringBuffer (an toàn hơn )
     Cũng mutable như StringBuilder.
     Nhưng đồng bộ (synchronized) → thread-safe.
     Hiệu năng chậm hơn StringBuilder vì phải xử lý đồng bộ.

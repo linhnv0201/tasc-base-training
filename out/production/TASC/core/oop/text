@@ -1,4 +1,4 @@
-4 Tính chất chính của OOP
+1. 4 Tính chất chính của OOP
     Encapsulation (Đóng gói)
         Gói dữ liệu (thuộc tính) và hành vi (phương thức) vào trong cùng một class.
         Che giấu chi tiết bên trong, chỉ cho phép truy cập thông qua các phương thức công khai (getter/setter).
@@ -8,6 +8,7 @@
         Lớp con có thể kế thừa thuộc tính và phương thức của lớp cha.
         Tái sử dụng code, mở rộng chức năng.
         Quan hệ "is-a" (Dog is a Animal).
+
 
     Polymorphism (Đa hình)
         Một hành động có thể được thực hiện theo nhiều cách khác nhau.
@@ -19,3 +20,383 @@
         Ẩn đi chi tiết cài đặt, chỉ cung cấp những gì cần thiết cho người dùng.
         Thực hiện qua abstract class hoặc interface.
         Giúp tập trung vào cái gì đối tượng làm, hơn là làm như thế nào.
+
+2. Access Modifier trong Java
+    Trong Java có 4 loại modifier chính:
+        1. public
+            Có thể truy cập từ mọi nơi (mọi class, mọi package).
+            Dùng khi bạn muốn API/thuộc tính/phương thức dùng chung cho tất cả.
+            Ví dụ:
+                public class Person {
+                    public String name;  // ai cũng truy cập được
+                    public void sayHello() {
+                        System.out.println("Hello!");
+                    }
+                }
+
+        2. protected
+            Truy cập được trong cùng package.
+            Ngoài package chỉ truy cập được nếu là lớp con (kế thừa).
+            Dùng khi muốn cho phép một nhóm class liên quan hoặc lớp con sử dụng.
+            Ví dụ:
+                class Animal {
+                    protected String type = "Mammal";
+                }
+
+                class Dog extends Animal {
+                    void printType() {
+                        System.out.println(type); // OK vì là lớp con
+                    }
+                }
+
+        3. (default) – package-private (không ghi gì cả)
+            Truy cập được trong cùng package.
+            Không truy cập được từ package khác.
+            Dùng khi bạn muốn “internal use only” trong 1 package.
+            Ví dụ:
+                class Student {  // mặc định: chỉ trong package
+                    String id;   // không ghi modifier => default
+                }
+
+        4. private
+            Chỉ truy cập được trong cùng class.
+            Không thể truy cập từ class khác (kể cả lớp con).
+            Dùng để đóng gói dữ liệu (encapsulation).
+            Ví dụ:
+                class Account {
+                    private double balance; // chỉ truy cập trong class này
+
+                    public void deposit(double amount) {
+                        balance += amount;
+                    }
+
+                    public double getBalance() {
+                        return balance; // chỉ expose qua getter
+                    }
+                }
+    Tóm tắt
+    | Modifier   | Trong class | Trong package | Lớp con khác package | Bất kỳ nơi nào |
+    |------------|-------------|---------------|-----------------------|----------------|
+    | public     | ✅           | ✅             | ✅                     | ✅              |
+    | protected  | ✅           | ✅             | ✅                     | ❌              |
+    | (default)  | ✅           | ✅             | ❌                     | ❌              |
+    | private    | ✅           | ❌             | ❌                     | ❌              |
+
+3. Class và Instance
+    🔹 Class
+        Là bản thiết kế (blueprint) để tạo ra đối tượng.
+        Chỉ mô tả thuộc tính (fields) và hành vi (methods).
+        Không chiếm bộ nhớ cho dữ liệu thực tế cho đến khi được khởi tạo.
+        Ví dụ:
+
+        public class Car {
+            String brand;    // thuộc tính
+            int year;
+
+            void drive() {   // phương thức
+                System.out.println("The car is driving...");
+            }
+        }
+
+        Ở đây Car là class.
+
+    🔹 Instance (Đối tượng)
+        Là thực thể cụ thể được tạo ra từ class (dùng new).
+        Mỗi instance có bộ nhớ riêng cho dữ liệu của nó.
+        Một class có thể tạo ra nhiều instance.
+        Ví dụ:
+
+            public class Main {
+                public static void main(String[] args) {
+                    Car car1 = new Car();  // instance 1
+                    car1.brand = "Toyota";
+                    car1.year = 2020;
+
+                    Car car2 = new Car();  // instance 2
+                    car2.brand = "Honda";
+                    car2.year = 2021;
+
+                    System.out.println(car1.brand); // Toyota
+                    System.out.println(car2.brand); // Honda
+                }
+            }
+
+        Ở đây car1, car2 là instances của class Car.
+
+    Tóm gọn
+        Class: Định nghĩa → giống như "bản thiết kế".
+        Instance: Đối tượng cụ thể → giống như "ngôi nhà được xây từ bản thiết kế".
+
+4. Interface vs Abstract class
+
+| Tiêu chí                  | Abstract Class                                         | Interface                                                                     |
+| ------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| **Định nghĩa              | Lớp trừu tượng, có thể chứa abstract + concrete method | Chỉ khai báo hành vi, mặc định abstract (Java 8+ có default/static method)    |
+| **Phương thức             | Có thể có abstract và concrete method                  | Mặc định abstract, Java 8+ có thể có `default`/`static`                       |
+| **Biến/Thuộc tính         | Có thể có instance variable + static variable          | Chỉ có `public static final` (hằng số)                                        |
+| **Constructor             | Có thể có                                              | Không có                                                                      |
+| **Kế thừa/Implement       | Một class chỉ được kế thừa 1 abstract class            | Một class có thể implement nhiều interface                                    |
+| **Khi sử dụng             | Chia sẻ code chung, quan hệ “is-a”                     | Đa kế thừa hành vi, không liên quan vẫn dùng chung                            |
+| **Mức độ truy cập         | Có thể public, protected, private                      | Mặc định tất cả phương thức là `public` (trừ default/static)                  |
+| **Khả năng override       | Class con có thể override abstract/concrete method     | Class implement phải override method abstract; default method có thể override |
+| **Khả năng chứa dữ liệu   | Có thể chứa trạng thái (state)                         | Không chứa trạng thái, chỉ hằng số                                            |
+| **Hỗ trợ Java version     | Từ Java 1.0                                            | Từ Java 1.0; Java 8+ hỗ trợ default/static method                             |
+| **Đa kế thừa              | Không hỗ trợ đa kế thừa                                | Hỗ trợ đa kế thừa (implement nhiều interface)                                 |
+ Note: Concrete method = method bình thường với { ... } chứa logic thực thi.
+
+    Trường hợp sử dụng
+        Abstract class:
+            Khi các class con cùng loại, muốn chia sẻ code chung.
+                Ví dụ: Animal abstract class → Dog, Cat kế thừa, cùng dùng phương thức eat().
+
+        Interface:
+            Khi muốn đa kế thừa hành vi.
+            Ví dụ: Flyable, Swimmable → Duck implement cả hai.
+
+    Nêu trường hợp sử dụng cụ thể. Nếu 2 interface hoặc 1 abstract và 1 interface có 1 function cùng tên,
+    có thể cùng hoặc khác kiểu trả về cùng được kế thừa bởi một class, chuyện gì sẽ xảy ra?
+        a. Hai interface cùng tên method
+            interface A {
+                void doSomething();
+            }
+
+            interface B {
+                void doSomething();
+            }
+
+            // Lớp implement cả hai interface
+            class C implements A, B {
+                @Override
+                public void doSomething() {
+                    System.out.println("Implement doSomething in C");
+                }
+            }
+
+            ✅ Kết luận: Java cho phép. Class C phải override method đó một lần, dùng chung cho cả interface.
+
+        b. Abstract class + interface có method cùng tên
+            abstract class D {
+                abstract void doSomething();
+            }
+
+            interface E {
+                void doSomething();
+            }
+
+            class F extends D implements E {
+                @Override
+                public void doSomething() {
+                    System.out.println("Implement doSomething in F");
+                }
+            }
+
+            ✅ Kết luận: Java vẫn cho phép. Class F chỉ cần override 1 lần, dùng chung cho cả abstract class và interface.
+
+        c. Trường hợp khác kiểu trả về
+        Nếu 2 method khác kiểu trả về, Java sẽ báo lỗi compile-time.
+            interface X { int foo(); }
+            interface Y { String foo(); } // khác kiểu trả về
+
+            class Z implements X, Y { // ❌ Lỗi compile
+                public int foo() { return 0; }
+            }
+
+        Lý do: Java không thể xác định phương thức nào được gọi, gây ambiguity.
+        Nếu cùng kiểu trả về → không vấn đề gì, override 1 lần là xong
+        Nếu khác kiểu trả về → không thể cùng kế thừa, phải sửa tên hoặc kiểu trả về.
+
+5. Overloading and Overriding
+    Overriding (Ghi đè)
+        Là việc lớp con viết lại phương thức đã có trong lớp cha.
+        Mục đích: thay đổi cách hoạt động của method trong lớp con.
+        Điều kiện:
+            Tên method giống hệt method của lớp cha.
+            Tham số giống hệt.
+            Kiểu trả về cùng hoặc tương thích (covariant return type).
+            Không giảm mức độ truy cập (private → không thể override).
+        Ví dụ
+            class Animal {
+                void makeSound() {
+                    System.out.println("Animal makes sound");
+                }
+            }
+
+            class Dog extends Animal {
+                @Override
+                void makeSound() {
+                    System.out.println("Dog says: Woof Woof!");
+                }
+            }
+
+            public class Main {
+                public static void main(String[] args) {
+                    Animal a = new Dog();
+                    a.makeSound(); // Dog says: Woof Woof! → runtime quyết định
+                }
+            }
+        ✅ Đặc điểm: xảy ra runtime → Dynamic Polymorphism.
+
+    Overloading (Nạp chồng)
+        Là việc cùng tên method nhưng khác tham số (số lượng hoặc kiểu) trong cùng một lớp hoặc lớp con.
+        Mục đích: tái sử dụng tên method cho nhiều tình huống khác nhau.
+        Ví dụ:
+            class Calculator {
+                int add(int a, int b) {
+                    return a + b;
+                }
+
+                double add(double a, double b) {
+                    return a + b;
+                }
+
+                int add(int a, int b, int c) {
+                    return a + b + c;
+                }
+            }
+
+            public class Main {
+                public static void main(String[] args) {
+                    Calculator calc = new Calculator();
+                    System.out.println(calc.add(2, 3));      // 5
+                    System.out.println(calc.add(2.5, 3.5));  // 6.0
+                    System.out.println(calc.add(1, 2, 3));   // 6
+                }
+            }
+        ✅ Đặc điểm: xảy ra compile-time → Static Polymorphism.
+
+    So sánh nhanh
+    | Feature      | Overriding            | Overloading             |
+    | ------------ | --------------------- | ----------------------- |
+    | Thời điểm    | Runtime               | Compile-time            |
+    | Tên method   | Giống hệt lớp cha     | Giống nhau              |
+    | Tham số      | Giống hệt             | Khác số lượng hoặc kiểu |
+    | Kiểu trả về  | Cùng hoặc tương thích | Có thể khác             |
+    | Polymorphism | Dynamic (động)        | Static (tĩnh)           |
+
+6. Một function có access modifier là private or static có thể overriding được không?
+    Private method
+        Không thể override.
+        Lý do: private chỉ truy cập trong cùng class, lớp con không thấy method này, nên không thể ghi đè.
+        Nếu bạn viết cùng tên method trong lớp con → không phải override, mà là method mới hoàn toàn (method hiding).
+        Ví dụ:
+            class Parent {
+                private void show() {
+                    System.out.println("Parent show");
+                }
+            }
+
+            class Child extends Parent {
+                void show() { // đây là method mới, không override
+                    System.out.println("Child show");
+                }
+            }
+
+            public class Main {
+                public static void main(String[] args) {
+                    Child c = new Child();
+                    c.show(); // Child show
+                }
+            }
+
+    Static method
+        Không thể override, chỉ có thể hidden (method hiding).
+        Khi gọi method qua class, sẽ gọi version của class đó, không phụ thuộc object runtime.
+        Ví dụ:
+            class Parent {
+                static void display() {
+                    System.out.println("Parent display");
+                }
+            }
+
+            class Child extends Parent {
+                static void display() {
+                    System.out.println("Child display");
+                }
+            }
+
+            public class Main {
+                public static void main(String[] args) {
+                    Parent.display(); // Parent display
+                    Child.display();  // Child display
+
+                    Parent p = new Child();
+                    p.display();      // Parent display (không phải override)
+                }
+            }
+
+7. - Một phương thức final có thể kế thừa được không ?
+    Có thể kế thừa: tức là lớp con sẽ có phương thức đó, nhưng không thể ghi đè (override).
+    Lý do: final = bất biến về hành vi, lớp con không được thay đổi cài đặt method.
+        class Parent {
+            final void show() {
+                System.out.println("This is a final method");
+            }
+        }
+
+        class Child extends Parent {
+            // ❌ Không thể override
+            // void show() { System.out.println("Try to override"); }
+        }
+
+        public class Main {
+            public static void main(String[] args) {
+                Child c = new Child();
+                c.show(); // This is a final method
+            }
+        }
+
+8. Phân biệt hai từ khóa This và Super
+    this
+    Tham chiếu đến đối tượng hiện tại (current object) của lớp đang thực thi.
+    Dùng để:
+        Truy cập thuộc tính instance của lớp.
+        Gọi method khác trong cùng lớp.
+        Gọi constructor khác trong cùng lớp (this(...)).
+        Ví dụ
+            class Person {
+                String name;
+
+                Person(String name) {
+                    this.name = name; // this trỏ tới biến instance của object hiện tại
+                }
+
+                void printName() {
+                    System.out.println(this.name); // this có thể bỏ cũng được
+                }
+
+                Person() {
+                    this("Unknown"); // gọi constructor khác trong cùng class
+                }
+            }
+
+    super
+    Tham chiếu đến lớp cha (superclass) của đối tượng hiện tại.
+    Dùng để:
+        Truy cập thuộc tính hoặc method lớp cha bị override.
+        Gọi constructor của lớp cha (super(...)).
+    Ví dụ:
+        class Animal {
+            void eat() {
+                System.out.println("Animal is eating");
+            }
+        }
+
+        class Dog extends Animal {
+            void eat() {
+                super.eat(); // gọi method eat() của lớp cha
+                System.out.println("Dog is eating"); // ghi đè thêm
+            }
+
+            Dog() {
+                super(); // gọi constructor lớp cha
+            }
+        }
+
+        So sánh nhanh
+        | Feature          | `this`                                   | `super`                                 |
+        | ---------------- | ---------------------------------------- | --------------------------------------- |
+        | Tham chiếu       | Đối tượng hiện tại                       | Lớp cha của đối tượng                   |
+        | Dùng cho         | Thuộc tính, method, constructor cùng lớp | Thuộc tính, method, constructor lớp cha |
+        | Gọi constructor  | `this(...)`                              | `super(...)`                            |
+        | Gọi method/field | `this.field` / `this.method()`           | `super.field` / `super.method()`        |
+
