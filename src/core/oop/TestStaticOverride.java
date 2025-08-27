@@ -14,10 +14,16 @@ class Child2 extends Parent2 {
 
 public class TestStaticOverride {
     public static void main(String[] args) {
-        Parent2.show(); // Parent static show
-        Child2.show();  // Child static show
+//        Parent2.show(); // Parent static show
+//        Child2.show();  // Child static show
 
         Parent2 p = new Child2();
         p.show();      // Parent static show (không polymorphism)
+        Parent2 p2 = new Parent2();
+        p2.show();
+        Child2 c = new Child2();
+        c.show();
+
+
     }
 }

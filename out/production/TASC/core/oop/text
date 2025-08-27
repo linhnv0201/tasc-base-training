@@ -397,6 +397,6 @@
         | ---------------- | ---------------------------------------- | --------------------------------------- |
         | Tham chiếu       | Đối tượng hiện tại                       | Lớp cha của đối tượng                   |
         | Dùng cho         | Thuộc tính, method, constructor cùng lớp | Thuộc tính, method, constructor lớp cha |
-        | Gọi constructor  | `this(...)`                              | `super(...)`                            |
+        | Gọi constructor  | `this(...)`                                 | `super(...)`                            |
         | Gọi method/field | `this.field` / `this.method()`           | `super.field` / `super.method()`        |
 

@@ -1,15 +1,45 @@
-package core.exception;
-
-public class Test {
-  public static void main(String[] args) {
-    //
-    int[] a = {1, 2, 3, 4, 5};
-    try {
-      for (int x = 0; x <= a.length; x++) {
-        System.out.println(a[x]);
-      }
-    } catch (ArrayIndexOutOfBoundsException e) {
-      System.out.println("tràn:" + e.getMessage());
-    }
-  }
-}
+//package core.exception;
+//
+//import java.io.File;
+//import java.io.FileNotFoundException;
+//import java.util.Scanner;
+//import java.io.*;
+//import java.text.ParseException;
+//import java.text.SimpleDateFormat;
+//import java.util.Date;
+//
+//public class Test {
+//
+//  // 1. Đọc file (có thể ném FileNotFoundException)
+//  static void readFile(String fileName) throws FileNotFoundException   {
+//    Scanner sc = new Scanner(new File(fileName)); // Checked Exception
+//    System.out.println("File content:");
+//    while (sc.hasNextLine()) {
+//      System.out.println(sc.nextLine());
+//    }
+//    sc.close();
+//  }
+//
+//  // xử lý exception trong method thì k cần throws
+//  static void readFile2(String fileName) throws FileNotFoundException   {
+//    try{
+//    Scanner sc = new Scanner(new File(fileName)); // Checked Exception
+//    System.out.println("File content:");
+//    while (sc.hasNextLine()) {
+//      System.out.println(sc.nextLine());
+//    }} catch (FileNotFoundException e){
+//      System.out.println(e.getMessage());
+//    }
+//  }
+//
+//  public static void main(String[] args) {
+//    try {
+//      // Thử đọc file không tồn tại
+//      readFile("abc.txt");
+//    } catch (FileNotFoundException e) {
+//      System.out.println("❌ Lỗi đọc file: " + e.getMessage());
+//    }
+//    readFile2("a.txt");
+//    System.out.println("✅ Program continues...");
+//  }
+//}

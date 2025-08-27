@@ -50,7 +50,9 @@ Class
 | `ArrayDeque`    | Queue hiệu năng cao, thay LinkedList khi không cần synchronized |
 
 Deque Interface
-| Class        | Khi dùng                                                                                 |
-| ------------ | ---------------------------------------------------------------------------------------- |
-| `LinkedList` | Deque linh hoạt, hỗ trợ cả FIFO và LIFO, thêm/xóa đầu/cuối nhanh                         |
-| `ArrayDeque` | Hiệu năng cao, thay thế Stack hoặc LinkedList khi thao tác 2 đầu, không cần synchronized |
+| Tiêu chí                    | ArrayDeque                                 | LinkedList                                                          |
+| --------------------------- | ------------------------------------------ | ------------------------------------------------------------------- |
+| Hiệu năng thao tác đầu/cuối | Nhanh hơn, cache-friendly                  | Chậm hơn một chút, nhiều pointer                                    |
+| Bộ nhớ                      | Ít hơn                                     | Nhiều hơn (node + 2 pointer)                                        |
+| Truy cập theo index         | ❌ Không                                    | O(n)                                                                |
+| Khi nào dùng                | Queue/Deque chuẩn, thao tác đầu/cuối nhiều | Khi cần truy cập bằng index hoặc muốn danh sách linh hoạt chèn giữa |
