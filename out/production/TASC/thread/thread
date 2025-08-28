@@ -1,0 +1,78 @@
+Process là gì?
+    Process là một chương trình đang chạy trên hệ điều hành.
+    Mỗi process có: bộ nhớ riêng, stack, heap, và một hoặc nhiều thread.
+    Ví dụ: Mở trình duyệt Chrome, mở Excel → mỗi ứng dụng là một process.
+
+Thread là gì?
+    Thread là luồng thực thi nhỏ nhất bên trong process.
+    Các thread trong cùng process chia sẻ bộ nhớ heap nhưng stack riêng.
+    Ví dụ: Trong Chrome, mỗi tab là một thread, nhưng cùng dùng chung heap của process Chrome.
+
+Có bao nhiêu cách tạo thread trong Java?
+    Cách 1:  Kế thừa Thread class
+        class MyThread extends Thread {
+            public void run() {
+                System.out.println("Thread chạy: " + Thread.currentThread().getName());
+            }
+        }
+
+        public class Demo {
+            public static void main(String[] args) {
+                MyThread t = new MyThread();
+                t.start(); // gọi start() để chạy thread
+            }
+        }
+
+    Cách 2: Implement Runnable interface
+        class MyRunnable implements Runnable {
+            public void run() {
+                System.out.println("Thread chạy: " + Thread.currentThread().getName());
+            }
+        }
+
+        public class Demo {
+            public static void main(String[] args) {
+                Thread t = new Thread(new MyRunnable());
+                t.start();
+            }
+        }
+
+    | Tiêu chí            | Kế thừa Thread                                              | Implement Runnable                       |
+    | ------------------- | ----------------------------------------------------------- | ---------------------------------------- |
+    | **Kế thừa**         | Không kế thừa được class khác (Java chỉ hỗ trợ kế thừa đơn) | Có thể kế thừa class khác, linh hoạt hơn |
+    | **Chia sẻ dữ liệu** | Khó chia sẻ biến giữa nhiều thread                          | Dễ chia sẻ biến cùng object Runnable     |
+    | **Sử dụng**         | Đơn giản, ít dùng trong thực tế                             | Thường dùng hơn, linh hoạt hơn           |
+
+Thế nào là multi thread ? Sử dụng multi thread mang lại ưu nhược điểm gì ?
+Multi-threading là chạy nhiều thread song song trong cùng 1 process.
+    Ưu điểm:
+        Tận dụng CPU đa nhân
+        Giảm thời gian chờ I/O
+        Cải thiện trải nghiệm người dùng (UI không bị block)
+    Nhược điểm:
+        Phức tạp, dễ lỗi race condition
+        Đồng bộ dữ liệu cần lock → overhead
+        Khó debug, dễ deadlock
+
+Làm sao biết thread đã hoàn thành?
+    .isAlive()
+    .getState()
+        NEW → chưa start
+        RUNNABLE → đang chạy hoặc sẵn sàng chạy
+        BLOCKED → đang bị khóa
+        WAITING → đang chờ signal
+        TIMED_WAITING → đang chờ timeout
+        TERMINATED → đã kết thúc
+
+
+    Sử dụng Thread.join()
+        Thread t = new Thread(() -> { /* code */ });
+        t.start();
+        t.join(); // main chờ thread t kết thúc
+        System.out.println("Thread đã xong");
+
+Giới hạn số thread trong Java?
+    Không có giới hạn cứng, nhưng bị hạn chế bởi:
+        Bộ nhớ stack của từng thread
+        Số lượng tài nguyên hệ thống
+    Ví dụ: Tạo quá nhiều thread (>10,000) có thể OutOfMemoryError: unable to create new native thread

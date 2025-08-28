@@ -1,0 +1,32 @@
+Synchronous (Đồng bộ)
+    Các tác vụ chạy theo thứ tự: tác vụ sau chỉ được chạy khi tác vụ trước hoàn thành.
+    Luồng chương trình bị chặn (blocking) cho đến khi công việc xong.
+    Giống như xếp hàng mua vé, phải chờ người trước xong mới đến lượt mình.
+    Dùng khi:   Khi tác vụ ngắn, nhẹ, tuần tự.
+                Ví dụ: Tính toán toán học đơn giản, xử lý dữ liệu trong RAM, đọc giá trị từ biến.
+
+Asynchronous (Bất đồng bộ)
+    Các tác vụ có thể chạy song song, không cần chờ tác vụ trước kết thúc.
+    Luồng chính không bị block, vẫn tiếp tục chạy trong khi công việc khác diễn ra nền.
+    Giống như gọi đồ ăn online: bạn đặt xong có thể làm việc khác, khi shipper tới thì mới xử lý tiếp.
+    Dùng khi:     Khi tác vụ tốn thời gian / chờ đợi.
+                  Ví dụ:
+                      Gọi API lấy dữ liệu từ server.
+                      Đọc/ghi file dung lượng lớn.
+                      Truy vấn database.
+                      Gửi mail, tải ảnh, stream video.
+
+So sánh
+    | Tiêu chí            | **Synchronous**                             | **Asynchronous**                             |
+    | ------------------- | ------------------------------------------- | -------------------------------------------- |
+    | **Đơn giản**        | Dễ hiểu, dễ debug                           | Phức tạp hơn, phải quản lý callback / future |
+    | **Hiệu năng**       | Chậm khi có tác vụ tốn thời gian (I/O, API) | Tận dụng CPU tốt, không bị chặn              |
+    | **Dùng tài nguyên** | Tốn ít tài nguyên                           | Có thể tăng overhead (thread, callback)      |
+    | **Trải nghiệm**     | Người dùng phải chờ                         | Trải nghiệm mượt hơn, có thể xử lý song song |Trường hợp sử dụng
+    Note: Overhead trong lập trình/máy tính nghĩa là chi phí phụ trội (extra cost) về thời gian, bộ nhớ,
+            hoặc tài nguyên mà chương trình phải bỏ ra để thực hiện một việc gì đó, ngoài công việc chính.
+
+synchronized là gì?
+    Từ khóa trong Java, dùng để đồng bộ hóa (synchronization).
+    Mục đích: đảm bảo rằng chỉ một thread có thể truy cập tài nguyên dùng chung (shared resource) tại một thời điểm.
+    Giúp tránh race condition (2 thread cùng lúc thay đổi dữ liệu → dữ liệu sai).

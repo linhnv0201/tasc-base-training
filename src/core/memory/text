@@ -15,7 +15,7 @@
     ✅ Ưu điểm: nhanh, quản lý đơn giản.
     ❌ Nhược điểm: không linh hoạt, không thay đổi kích thước khi chạy.
 
-2. Cấp phát động (Dynamic Allocation)
+2. Cấp phát động (Dynamic Allocation) có thể cấp phát thêm bộ nhớ
     Định nghĩa: Bộ nhớ được cấp phát tại thời điểm chạy chương trình (runtime).
     Thường dùng cho: đối tượng (object) và mảng.
     Kích thước có thể thay đổi theo nhu cầu.

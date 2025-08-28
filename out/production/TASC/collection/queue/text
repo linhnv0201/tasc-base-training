@@ -50,9 +50,10 @@ Class
 | `ArrayDeque`    | Queue hiệu năng cao, thay LinkedList khi không cần synchronized |
 
 Deque Interface
-| Tiêu chí                    | ArrayDeque                                 | LinkedList                                                          |
-| --------------------------- | ------------------------------------------ | ------------------------------------------------------------------- |
-| Hiệu năng thao tác đầu/cuối | Nhanh hơn, cache-friendly                  | Chậm hơn một chút, nhiều pointer                                    |
-| Bộ nhớ                      | Ít hơn                                     | Nhiều hơn (node + 2 pointer)                                        |
-| Truy cập theo index         | ❌ Không                                    | O(n)                                                                |
-| Khi nào dùng                | Queue/Deque chuẩn, thao tác đầu/cuối nhiều | Khi cần truy cập bằng index hoặc muốn danh sách linh hoạt chèn giữa |
+| Thao tác                                  | ArrayDeque                            | LinkedList             | Ghi chú                                                      |
+| ----------------------------------------- | ------------------------------------- | ---------------------- | ------------------------------------------------------------ |
+| **Thêm/xóa ở đầu/cuối**                   | O(1)\*                                | O(1)                   | Với `ArrayDeque` là **amortized O(1)** vì đôi khi cần resize |
+| **Truy cập phần tử theo chỉ số (get(i))** | O(1)                                  | O(n)                   | Vì `ArrayDeque` dùng mảng, còn `LinkedList` phải duyệt node  |
+| **Tìm kiếm phần tử**                      | O(n)                                  | O(n)                   | Cả hai phải duyệt tuyến tính                                 |
+| **Chèn/xóa ở giữa (khi đã có Iterator)**  | O(n) (dịch mảng)                      | O(1) (chỉ đổi con trỏ) | Đây là điểm mạnh duy nhất của `LinkedList`                   |
+| **Duyệt tuần tự (iteration)**             | O(n) nhưng nhanh hơn (cache-friendly) | O(n) nhưng chậm hơn    | Do locality của bộ nhớ                                       |
