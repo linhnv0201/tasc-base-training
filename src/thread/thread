@@ -37,11 +37,15 @@ Có bao nhiêu cách tạo thread trong Java?
             }
         }
 
-    | Tiêu chí            | Kế thừa Thread                                              | Implement Runnable                       |
-    | ------------------- | ----------------------------------------------------------- | ---------------------------------------- |
-    | **Kế thừa**         | Không kế thừa được class khác (Java chỉ hỗ trợ kế thừa đơn) | Có thể kế thừa class khác, linh hoạt hơn |
-    | **Chia sẻ dữ liệu** | Khó chia sẻ biến giữa nhiều thread                          | Dễ chia sẻ biến cùng object Runnable     |
-    | **Sử dụng**         | Đơn giản, ít dùng trong thực tế                             | Thường dùng hơn, linh hoạt hơn           |
+| Tiêu chí              | Kế thừa `Thread`                                | Dùng `Runnable` / Lambda                              |
+| --------------------- | ----------------------------------------------- | ----------------------------------------------------- |
+| **Cách tạo**          | Tạo lớp con của `Thread`, override `run()`      | Tạo `Runnable` (hoặc lambda) và truyền vào `Thread`   |
+| **Tạo object thread** | `Thread t = new MyThread();`                    | `Thread t = new Thread(runnable);`                    |
+| **Logic thread**      | Nằm trực tiếp trong lớp con                     | Nằm trong `Runnable`, tách biệt thread                |
+| **Tái sử dụng logic** | Khó, logic gắn với lớp riêng                    | Dễ, cùng 1 `Runnable` chạy nhiều thread               |
+| **Kế thừa lớp khác**  | Không được (Java chỉ hỗ trợ single inheritance) | Được, class vẫn có thể kế thừa lớp khác               |
+| **Phù hợp với**       | Thread đơn giản, nhanh                          | Nhiều thread, logic reusable, kết hợp ExecutorService |
+
 
 Thế nào là multi thread ? Sử dụng multi thread mang lại ưu nhược điểm gì ?
 Multi-threading là chạy nhiều thread song song trong cùng 1 process.
@@ -55,6 +59,8 @@ Multi-threading là chạy nhiều thread song song trong cùng 1 process.
         Khó debug, dễ deadlock
 
 Làm sao biết thread đã hoàn thành?
+https://stackoverflow.com/questions/702415/how-to-know-if-other-threads-have-finished
+    .join() sử dụng để biết thread này chạy xong chưa rồi chạy tiếp thread chính
     .isAlive()
     .getState()
         NEW → chưa start
@@ -64,15 +70,34 @@ Làm sao biết thread đã hoàn thành?
         TIMED_WAITING → đang chờ timeout
         TERMINATED → đã kết thúc
 
+| Cách kiểm tra              | Cách sử dụng                      | Chặn thread gọi kiểm tra?      | Ưu điểm                                    | Nhược điểm                             | Khi nên dùng                                                      |
+| -------------------------- | --------------------------------- | ------------------------------ | ------------------------------------------ | -------------------------------------- | ----------------------------------------------------------------- |
+| `Thread.isAlive()`         | `t.isAlive()`                     | Không                          | Kiểm tra trạng thái bất cứ lúc nào         | Phải lặp kiểm tra liên tục để theo dõi | Khi muốn **giám sát trạng thái thread**, không cần chặn           |
+| `Thread.join()`            | `t.join()` hoặc `t.join(timeout)` | Có                             | Đảm bảo thread hoàn tất trước khi tiếp tục | Chặn thread gọi join                   | Khi cần **đồng bộ hóa luồng**, chờ thread xong trước khi tiếp tục |
+| `ExecutorService + Future` | `future.isDone()`, `future.get()` | `get()` chặn, `isDone()` không | Dùng với thread pool, nhận kết quả thread  | Phải dùng executor, hơi phức tạp hơn   | Khi dùng **thread pool, Callable**, hoặc cần **kết quả trả về**   |
 
-    Sử dụng Thread.join()
-        Thread t = new Thread(() -> { /* code */ });
-        t.start();
-        t.join(); // main chờ thread t kết thúc
-        System.out.println("Thread đã xong");
 
 Giới hạn số thread trong Java?
     Không có giới hạn cứng, nhưng bị hạn chế bởi:
         Bộ nhớ stack của từng thread
         Số lượng tài nguyên hệ thống
     Ví dụ: Tạo quá nhiều thread (>10,000) có thể OutOfMemoryError: unable to create new native thread
+
+Thread Pool
+    là một tập hợp các thread đã được khởi tạo sẵn để thực hiện các task, thay vì tạo thread mới mỗi lần cần chạy công việc.
+    Ý tưởng
+        Thay vì tạo thread mới liên tục → tốn tài nguyên, chậm, có thể gây OutOfMemoryError.
+        Thread pool tái sử dụng các thread đã tạo sẵn để chạy các task khác nhau.
+        Khi task kết thúc → thread không chết mà trở lại pool, sẵn sàng chạy task tiếp theo.
+    Lợi ích
+    Tiết kiệm tài nguyên: không phải tạo và hủy thread liên tục.
+        Quản lý số thread: giới hạn số lượng thread tối đa, tránh quá tải CPU.
+        Quản lý task: các task được xếp hàng (queue), thread pool xử lý tuần tự hoặc song song.
+        Tái sử dụng logic thread: thread không chết sau khi task xong, có thể chạy task khác.
+
+    | Tiêu chí                | Tạo thread riêng lẻ      | Thread pool                          |
+    | ----------------------- | ------------------------ | ------------------------------------ |
+    | Tài nguyên              | Tốn (tạo mới + hủy)      | Tiết kiệm (tái sử dụng thread)       |
+    | Quản lý số lượng thread | Khó kiểm soát            | Dễ dàng giới hạn tối đa              |
+    | Hiệu năng               | Thấp nếu nhiều thread    | Cao hơn, ổn định hơn                 |
+    | Phù hợp với             | Task đơn giản, ít thread | Task nhiều, lặp lại, cần concurrency |

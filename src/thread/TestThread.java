@@ -1,48 +1,86 @@
 package thread;
 
 class Counter {
-    private int count = 0;
+  private int count = 0;
 
-//    public void increment(String threadName) {
-//        synchronized (this) { // lock trên object hiện tại
-//            count++;
-//            System.out.println(threadName + " tăng count lên: " + count);
-//        }
-//    }
-    public synchronized void increment(String threadName) {
-            count++;
-            System.out.println(threadName + " tăng count lên: " + count);
-    }
+  //    public void increment(String threadName) {
+  //        synchronized (this) { // lock trên object hiện tại
+  //            count++;
+  //            System.out.println(threadName + " tăng count lên: " + count);
+  //        }
+  //    }
+  public synchronized void increment(String threadName) {
+    count++;
+    System.out.println(threadName + " tăng count lên: " + count);
+  }
 
-    public int getCount(){
-        return count;
-    }
+  public int getCount() {
+    return count;
+  }
 }
 
 public class TestThread {
-    public static void main(String[] args) throws InterruptedException {
-        Counter counter = new Counter();
+  public static void main(String[] args) throws InterruptedException {
+    Counter counter = new Counter();
 
-        Thread t1 = new Thread(() -> {
-            for (int i = 0; i < 5; i++) {
+    Thread t1 =
+        new Thread(
+            () -> {
+              for (int i = 0; i < 5; i++) {
                 counter.increment(Thread.currentThread().getName());
-                try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-        }, "Thread-1");
+                // sleep để làm chậm lại in ra, nếu ko ko thấy rõ kết quả
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  e.printStackTrace();
+                }
+              }
+            },
+            "Thread-1");
 
-        Thread t2 = new Thread(() -> {
-            for (int i = 0; i < 5; i++) {
+    Thread t2 =
+        new Thread(
+            () -> {
+              for (int i = 0; i < 5; i++) {
                 counter.increment(Thread.currentThread().getName());
-                try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-        }, "Thread-2");
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  e.printStackTrace();
+                }
+              }
+            },
+            "Thread-2");
+    Thread t3 =
+        new Thread(
+            () -> {
+              for (int i = 0; i < 5; i++) {
+                counter.increment((Thread.currentThread().getName()));
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  e.printStackTrace();
+                }
+              }
+            },
+            "Thread-3");
 
-        t1.start();
-        t2.start();
-        t1.join();
-        t2.join();
+    t1.start();
+    t2.start();
+    t3.start();
 
-        System.out.println("Count cuối cùng: " + counter.getCount());
+    for (int i = 0; i < 5; i++) {
+      counter.increment(Thread.currentThread().getName());
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e){
+        e.printStackTrace();
+      }
     }
-}
 
+    t1.join();
+    t2.join();
+    t3.join();
+    System.out.println("Count cuối cùng: " + counter.getCount());
+  }
+}

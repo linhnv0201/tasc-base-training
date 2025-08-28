@@ -30,3 +30,18 @@ synchronized là gì?
     Từ khóa trong Java, dùng để đồng bộ hóa (synchronization).
     Mục đích: đảm bảo rằng chỉ một thread có thể truy cập tài nguyên dùng chung (shared resource) tại một thời điểm.
     Giúp tránh race condition (2 thread cùng lúc thay đổi dữ liệu → dữ liệu sai).
+
+Các method với thread
+    join()
+        VD: t1.join(); // khi gọi vậy thì thread hiện tại dừng đến khi t1 hoàn thành (ưu tiên chạy trước)
+            t1.join(5000); // chờ t1 chạy trong 5s thôi, ko cần chờ hết 5s nếu t1 done trước thời hạn.
+    | Method      | Mục đích                         |
+    | ----------- | -------------------------------- |
+    | start()     | Bắt đầu thread mới               |
+    | run()       | Chứa logic thread                |
+    | join()      | Chờ thread khác kết thúc         |
+    | sleep()     | Tạm dừng thread                  |
+    | isAlive()   | Kiểm tra thread còn chạy         |
+    | interrupt() | Yêu cầu dừng thread              |
+    | yield()     | Nhường CPU cho thread khác       |
+    | wait/notify | Đồng bộ và giao tiếp giữa thread |

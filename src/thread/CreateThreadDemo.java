@@ -1,54 +1,68 @@
 package thread;
 
+// Demo so sánh Thread extends Thread vs Runnable
 public class CreateThreadDemo {
 
-    // Cách 1: Kế thừa Thread
+    // 1️⃣ Kế thừa Thread
     static class MyThread extends Thread {
+        private String name;
+        public MyThread(String name) { this.name = name; }
+
         @Override
         public void run() {
-            System.out.println("Thread kế thừa Thread đang chạy...");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for (int i = 0; i < 3; i++) {
+                System.out.println(name + " chạy (extends Thread) - step " + i);
+                try { Thread.sleep(200); } catch (InterruptedException e) {}
             }
-            System.out.println("Thread kế thừa Thread kết thúc");
         }
     }
 
-    // Cách 2: Implement Runnable
+    // 2️⃣ Runnable
     static class MyRunnable implements Runnable {
+        private String name;
+        public MyRunnable(String name) { this.name = name; }
+
         @Override
         public void run() {
-            System.out.println("Thread implement Runnable đang chạy...");
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for (int i = 0; i < 3; i++) {
+                System.out.println(name + " chạy (Runnable) - step " + i);
+                try { Thread.sleep(200); } catch (InterruptedException e) {}
             }
-            System.out.println("Thread implement Runnable kết thúc");
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
-        // Khởi tạo thread kế thừa Thread
-        MyThread t1 = new MyThread();
+        System.out.println("=== Thread extends Thread ===");
+        Thread t1 = new MyThread("T1");
+        Thread t2 = new MyThread("T2");
         t1.start();
-        System.out.println("t1.isAlive(): " + t1.isAlive());
-        System.out.println("t1.getState(): " + t1.getState());
-
-        // Khởi tạo thread implement Runnable
-        Thread t2 = new Thread(new MyRunnable());
         t2.start();
-        System.out.println("t2.isAlive(): " + t2.isAlive());
-        System.out.println("t2.getState(): " + t2.getState());
-
-        // Chờ tất cả thread kết thúc
         t1.join();
         t2.join();
 
-        System.out.println("Sau khi join:");
-        System.out.println("t1.isAlive(): " + t1.isAlive() + ", state: " + t1.getState());
-        System.out.println("t2.isAlive(): " + t2.isAlive() + ", state: " + t2.getState());
+        System.out.println("\n=== Thread + Runnable (tái sử dụng Runnable) ===");
+        MyRunnable sharedRunnable = new MyRunnable("SharedRunnable");
+        Thread r1 = new Thread(sharedRunnable);
+        Thread r2 = new Thread(sharedRunnable);
+        r1.start();
+        r2.start();
+        r1.join();
+        r2.join();
+
+    // Giải thích
+    //
+    // Thread extends Thread
+    //
+    // Tạo 2 thread riêng (t1, t2), logic gắn trực tiếp trong lớp.
+    //
+    // Mỗi thread có logic riêng, khó dùng lại.
+    //
+    // Thread + Runnable
+    //
+    // Tạo 1 Runnable object, dùng cho 2 thread khác nhau (r1, r2) → tái sử dụng logic.
+    //
+    // Output sẽ xen kẽ, vì cả 2 thread cùng chạy logic của Runnable.
+
+    System.out.println("\nDemo kết thúc");
     }
 }

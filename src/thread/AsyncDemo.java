@@ -1,7 +1,6 @@
 package thread;
 
 public class AsyncDemo {
-
   static void doWork() {
     try {
       Thread.sleep(5000); // giả lập công việc nặng trong 5s
