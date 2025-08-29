@@ -37,7 +37,7 @@ public class JoinDemo {
 
     t2.start();
     t2.join(); // main chờ t2 xong
-    System.out.println(t2.isInterrupted());
+//    System.out.println(t2.isInterrupted());
 //    boolean check = t1.isAlive();
 //    System.out.println("t1 is running (" + check + "). state = "+ t1.getState());
 

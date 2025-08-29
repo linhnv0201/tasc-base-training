@@ -10,21 +10,20 @@
         keySet(), values(), entrySet() – duyệt keys, values, entries
 
 Các class triển khai Map Interface
+| Class                 | Đặc điểm chính                                                                                                          | Khi dùng chính                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **HashMap**           | - Không bảo đảm thứ tự key.<br>- Truy cập, thêm, xóa nhanh O(1) trung bình.<br>-                  | Khi **thứ tự key không quan trọng**, cần hiệu năng cao.              |
+| **LinkedHashMap**     | - Bảo toàn **thứ tự chèn** hoặc **thứ tự truy cập**.<br>- Tốt cho LRU cache.<br>-                 | Khi cần **duy trì thứ tự chèn hoặc thứ tự truy cập**, hiệu năng tốt. |
+| **TreeMap**           | - Tự động **sắp xếp key** theo thứ tự tự nhiên hoặc Comparator.<br>- Thêm/xóa/tìm kiếm O(log n).  | Khi cần Map **duy nhất theo thứ tự key**, muốn sắp xếp tự động.      |
+| **Hashtable**         | - Phiên bản cũ, **đồng bộ (synchronized)**.<br>-                                                  | Khi code cũ cần **thread-safe**, hiện nay ít dùng.                   |
+| **ConcurrentHashMap** | - Map **thread-safe**, truy cập đồng thời.<br>- Hiệu năng tốt khi nhiều thread thao tác Map.                            | Khi nhiều thread thao tác **đọc/ghi đồng thời**.                     |
+| **WeakHashMap**       | - Key được giữ bằng **weak reference**, entry tự xóa khi key không còn tham chiếu mạnh.<br>-      | Khi muốn **cache tạm thời**, key tự xóa → tránh memory leak.         |
 
-| Class                 | Đặc điểm / Khi dùng                                                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **HashMap**           | - Không bảo đảm thứ tự key.<br>- Truy cập, thêm, xóa nhanh O(1) trung bình.<br>- Khi thứ tự không quan trọng, cần hiệu năng cao.            |
-| **LinkedHashMap**     | - Bảo toàn **thứ tự chèn** hoặc thứ tự truy cập (dùng cho LRU cache).<br>- Khi cần thứ tự duy trì + hiệu năng nhanh.                        |
-| **TreeMap**           | - Tự động **sắp xếp key** theo thứ tự tự nhiên hoặc Comparator.<br>- Khi cần Map duy nhất theo thứ tự key.<br>- Thêm/xóa/tìm kiếm O(log n). |
-| **Hashtable**         | - Phiên bản cũ, **đồng bộ (synchronized)**.<br>- Khi cần thread-safe code cũ, nhưng hiện nay nên dùng `ConcurrentHashMap`.                  |
-| **ConcurrentHashMap** | - Map **thread-safe** hiệu quả, truy cập đồng thời.<br>- Khi nhiều thread đọc/ghi Map mà không khóa toàn bộ.                                |
 
-Tóm tắt khi dùng từng loại
-| Class             | Khi dùng chính                                                   |
-| ----------------- | ---------------------------------------------------------------- |
-| HashMap           | Khi **thứ tự key không quan trọng**, cần hiệu năng cao.          |
-| LinkedHashMap     | Khi cần **giữ thứ tự chèn** hoặc thứ tự truy cập (LRU).          |
-| TreeMap           | Khi cần **sắp xếp key tự động** theo thứ tự.                     |
-| Hashtable         | Khi code cũ cần **thread-safe**, hiện ít dùng.                   |
-| ConcurrentHashMap | Khi nhiều thread thao tác trên Map **đồng thời**, cần hiệu năng. |
-
+Khi bạn put(key, value) vào HashMap:
+    HashMap tính hash(key) → ra số nguyên.
+    Tính index = hash & (capacity - 1) → tìm ra bucket số index trong mảng table.
+    Lưu (key, value) vào bucket đó.
+    Nếu đã có dữ liệu trong bucket:
+    Nếu key giống nhau → ghi đè value.
+    Nếu key khác nhau → cả hai cặp được giữ trong cùng bucket (trong 1 LinkedList hoặc Tree).

@@ -1,14 +1,14 @@
 package collection.queue;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Deque;
-import java.util.ArrayDeque;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class QueueDequeDemo {
     public static void main(String[] args) {
         // ================== Queue ==================
-        Queue<Integer> queue = new LinkedList<>();
+//        Queue<Integer> queue = new LinkedList<>();
+//        Queue<Integer> queue = new PriorityQueue<>();
+        Queue<Integer> queue = new ArrayBlockingQueue<>(5);
 
         // Thêm phần tử
         queue.add(10);

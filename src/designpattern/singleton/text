@@ -1,0 +1,39 @@
+https://gpcoder.com/4190-huong-dan-java-design-pattern-singleton/
+
+Đôi khi, trong quá trình phân tích thiết kế một hệ thống, chúng ta mong muốn có những đối tượng cần tồn tại duy nhất
+và có thể truy xuất mọi lúc mọi nơi. Làm thế nào để hiện thực được một đối tượng như thế khi xây dựng mã nguồn?
+Chúng ta có thể nghĩ tới việc sử dụng một biến toàn cục (global variable : public static final).
+Tuy nhiên, việc sử dụng biến toàn cục nó phá vỡ quy tắc của OOP (encapsulation).
+Để giải bài toán trên, người ta hướng đến một giải pháp là sử dụng Singleton pattern.
+
+Singleton Pattern là gì?
+    Singleton is a creational design pattern that lets you ensure that a class has only one instance and provide
+        a global access point to this instance.
+    Singleton là 1 trong 5 design pattern của nhóm Creational Design Pattern.(https://gpcoder.com/4164-gioi-thieu-design-patterns/)
+    Singleton đảm bảo chỉ duy nhất một thể hiện (instance) được tạo ra và nó sẽ cung cấp cho bạn một method để có thể truy xuất được
+        thể hiện duy nhất đó mọi lúc mọi nơi trong chương trình.
+
+    Sử dụng Singleton khi chúng ta muốn:
+        Đảm bảo rằng chỉ có một instance của lớp.
+        Việc quản lý việc truy cập tốt hơn vì chỉ có một thể hiện duy nhất.
+        Có thể quản lý số lượng thể hiện của một lớp trong giớn hạn chỉ định.
+
+    Implement Singleton Pattern như thế nào?
+    rất nhiều cách để implement Singleton Pattern nhưng về cơ bản dựa theo nguyên tắc
+        private constructor để hạn chế truy cập từ class bên ngoài.
+        Đặt private static final variable đảm bảo biến chỉ được khởi tạo trong class.
+        Có một method public static để return instance được khởi tạo ở trên.
+
+    Các cách để implements Singleton Pattern (code)
+
+    Sử dụng Singleton Pattern khi nào? Dưới đây là một số trường hợp sử dụng của Singleton Pattern thường gặp:
+        Vì class dùng Singleton chỉ tồn tại 1 Instance (thể hiện) nên nó thường được dùng cho các trường hợp giải quyết
+            các bài toán cần truy cập vào các ứng dụng như: Shared resource, Logger, Configuration, Caching, Thread pool, …
+        Một số design pattern khác cũng sử dụng Singleton để triển khai: Abstract Factory, Builder, Prototype, Facade,…
+        Đã được sử dụng trong một số class của core java như: java.lang.Runtime, java.awt.Desktop.
+
+    Tổng kết
+    Có rất nhiều cách implement cho Singleton, mình thường sử dụng BillPughSingleton vì có hiệu suất cao,
+    sử dụng LazyInitializedSingleton cho những ứng dụng chỉ làm việc với ứng dụng single-thread
+    và sử dụng DoubleCheckLockingSingleton khi làm việc với ứng dụng multi-thread.
+    Tùy theo trường hợp cụ thể, bạn hãy chọn cho mình cách implement phù hợp.

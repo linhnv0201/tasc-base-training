@@ -25,3 +25,17 @@ Set Interface (java.util.Set)
 | **HashSet**       | Không xác định  | O(1) trung bình                                  | Thấp (chỉ mảng + bucket)                         | Khi **thứ tự không quan trọng**, cần hiệu năng cao |
 | **LinkedHashSet** | Giữ thứ tự chèn | O(1) trung bình (nhẹ hơn HashSet do linked list) | Cao hơn HashSet (thêm prev/next cho linked list) | Khi cần **thứ tự chèn + tốc độ gần HashSet**       |
 | **TreeSet**       | Tự động sắp xếp | O(log n)                                         | Cao (cấu trúc cây)                               | Khi cần **tập hợp duy nhất và tự sắp xếp**         |
+
+Hoạt động khi add/get trong Set
+    1. Add (thêm phần tử)
+        Hash key → tính index → tìm bucket.
+        Nếu bucket rỗng → thêm phần tử.
+        Nếu bucket có phần tử khác:
+        Nếu cùng key → bỏ qua (Set không cho trùng).
+        Nếu khác → collision → thêm vào bucket (list/tree).
+    2. Contains (truy vấn phần tử có trong set không)
+        Hash key → tính index → nhảy tới bucket.
+        Duyệt trong bucket, nếu thấy key trùng → true.
+        Nếu không thấy → false.
+    3. Remove
+        Hash key → index → tìm trong bucket → xóa nếu trùng.

@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class LinkedHashSetMethods {
   public static void main(String[] args) {
-    Set<String> set = new LinkedHashSet<>();
+    LinkedHashSet<String> set = new LinkedHashSet<>();
 
     // Thêm phần tử
     set.add("Apple");
@@ -35,7 +35,6 @@ public class LinkedHashSetMethods {
     while (it.hasNext()) {
       System.out.print(it.next() + " ");
     }
-
 
     // Clear
     set.clear();

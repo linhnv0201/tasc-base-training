@@ -15,6 +15,21 @@ Queue Interface (java.util.Queue)
         | `PriorityQueue` | Queue theo thứ tự ưu tiên (không theo FIFO), thích hợp cho heap/priority scheduling          |
         | `ArrayDeque`    | Queue hiệu năng cao, không giới hạn, thay thế `LinkedList` khi không cần truy cập theo index |
 
+      Tham khảo thêm:
+      https://cafedev.vn/tu-hoc-java-blockingqueue-trong-java/
+       | Class / Interface         | Đặc điểm chính                                                                                                                                     |
+       | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+       | **LinkedList**            | - Triển khai `Queue` và `Deque`.<br>- Có thể dùng như queue FIFO hoặc deque.<br>- Thêm/xóa đầu/cuối O(1).                                          |
+       | **ArrayDeque**            | - Triển khai `Deque`.<br>- Không giới hạn kích thước (tự mở rộng).<br>- Nhanh hơn `LinkedList`, dùng cho stack hoặc queue.<br>- Không thread-safe. |
+       | **PriorityQueue**         | - Queue có thứ tự dựa trên **Comparable** hoặc **Comparator**.<br>- Không bảo toàn thứ tự chèn.<br>- Truy xuất head nhanh O(1), thêm/xóa O(log n). |
+       | **ConcurrentLinkedQueue** | - Queue **thread-safe**, lock-free.<br>- FIFO, dùng trong môi trường đa luồng.                                                                     |
+       | **LinkedBlockingQueue**   | - Thread-safe, dùng trong **Producer-Consumer**.<br>- Có thể giới hạn capacity.<br>- Thường dùng trong ThreadPoolExecutor.                         |
+       | **ArrayBlockingQueue**    | - Thread-safe, **fixed capacity**.<br>- Thường dùng cho producer-consumer.                                                                         |
+       | **DelayQueue**            | - Thread-safe, chứa các item có delay.<br>- Item chỉ có thể lấy khi delay hết.                                                                     |
+       | **SynchronousQueue**      | - Thread-safe, **không lưu trữ**.<br>- Mỗi `put()` phải chờ `take()`. Dùng trong thread pool.                                                      |
+       | **PriorityBlockingQueue** | - Thread-safe, giống `PriorityQueue` nhưng cho đa luồng.                                                                                           |
+
+
 
 Deque Interface (java.util.Deque)
     Đặc điểm:
@@ -41,14 +56,6 @@ Tóm tắt sự khác biệt Queue vs Deque:
 | Class phổ biến | `LinkedList`, `PriorityQueue`, `ArrayDeque` | `LinkedList`, `ArrayDeque`            |
 | Khi dùng       | Task scheduling, hàng đợi thông thường      | Khi cần Queue + Stack, thao tác 2 đầu |
 
-Queue Interface
-Class
-| Class           | Khi dùng                                                        |
-| --------------- | --------------------------------------------------------------- |
-| `LinkedList`    | FIFO queue thông thường, thao tác đầu/cuối nhanh                |
-| `PriorityQueue` | Queue theo thứ tự ưu tiên (heap), không FIFO chuẩn              |
-| `ArrayDeque`    | Queue hiệu năng cao, thay LinkedList khi không cần synchronized |
-
 Deque Interface
 | Thao tác                                  | ArrayDeque                            | LinkedList             | Ghi chú                                                      |
 | ----------------------------------------- | ------------------------------------- | ---------------------- | ------------------------------------------------------------ |
@@ -57,3 +64,4 @@ Deque Interface
 | **Tìm kiếm phần tử**                      | O(n)                                  | O(n)                   | Cả hai phải duyệt tuyến tính                                 |
 | **Chèn/xóa ở giữa (khi đã có Iterator)**  | O(n) (dịch mảng)                      | O(1) (chỉ đổi con trỏ) | Đây là điểm mạnh duy nhất của `LinkedList`                   |
 | **Duyệt tuần tự (iteration)**             | O(n) nhưng nhanh hơn (cache-friendly) | O(n) nhưng chậm hơn    | Do locality của bộ nhớ                                       |
+

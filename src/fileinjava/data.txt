@@ -1,0 +1,138 @@
+High throughput file reading in Java
+#
+java
+#
+file
+Inspired from 1brc challenge, In this post we will explore various file reading options and how to tune it for the higher throughput in Java.
+
+We are referring to Java 21. But the features we are going to explore are available all back to Java 8.
+
+For this post - let's take a goal to count number of occurrence of specific character in a large text file.
+
+Create a large text file.
+dd if=/dev/urandom bs=110999999 count=50 | base64 > large_file.txt
+
+## trim it to 5G size
+truncate -s 5G large_file.txt
+Read file in streaming manner using FileInputStream.
+    public long count(char letter) throws IOException {
+        long result = 0L;
+        try (FileInputStream fis = new FileInputStream(this.inputFile)) {
+            int content;
+            while ((content = fis.read()) != -1) {
+                if (content == letter) {
+                    result++;
+                }
+            }
+        }
+        return result;
+    }
+Internally, this is reading one byte at a time from File. Running this on a MacBook with apple SSD on a 5G file takes ~2880 second (i.e. 48 minutes).
+
+Read file in streaming manner using BufferedReader.
+The bottleneck in above approach is, disk read, read it from memory and then read from the disk again byte by byte. so the number of disk reads operations are high and the throughput is one byte per read. To improve this - we can use buffer where the bulk of the data is read from disk to buffer, while buffer is being processed it gets filled again by disk read. This will improve the performance by reducing the number of disk operations and making large buffer available in memory for processing.
+
+    public long count(char letter) throws IOException {
+        long result = 0L;
+        try (BufferedReader br = new BufferedReader(new FileReader(this.inputFile))) {
+            int content;
+            while ((content = br.read()) != -1) {
+                if (content == letter) {
+                    result++;
+                }
+            }
+        }
+        return result;
+    }
+Note: the text file may not contain newline \n character. Avoiding readLine() is recommended in such case to avoid OOMs.
+
+Running this on the same file takes ~70 second. i.e. it is ~41 times faster than first version.
+
+Read file in parallel using using FileChannel.
+Now what if we break this file virtually in multiple chunks and read and process all the chunks in parallel to improve the throughput even further.
+
+    public long count(char letter) throws IOException, InterruptedException {
+        FileChannel fileChannel = FileChannel.open(inputFile.toPath(), StandardOpenOption.READ);
+        int numberOfThreads = Runtime.getRuntime().availableProcessors();
+        long chunkSize = fileChannel.size() / numberOfThreads;
+        List<CounterThread> threads = new ArrayList<>();
+        for (int i = 0; i < numberOfThreads; i++) {
+            long start = i*chunkSize;
+            MappedByteBuffer buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, start, chunkSize);
+            CounterThread counterThread = new CounterThread(buffer, (byte)letter);
+            threads.add(counterThread);
+            counterThread.start();
+
+        }
+        long result = 0;
+        for (CounterThread thread : threads) {
+            thread.join();
+            result += thread.count();
+        }
+        return result;
+    }
+and
+
+
+class CounterThread extends Thread {
+    private long count;
+    private MappedByteBuffer buffer;
+
+    private byte letter;
+
+    public CounterThread(MappedByteBuffer buffer, byte letter) {
+        this.buffer = buffer;
+        this.letter = letter;
+    }
+
+    @Override
+    public void run() {
+        while (buffer.hasRemaining()) {
+            if (buffer.get() == letter){
+                count++;
+            }
+        }
+    }
+
+    public long count() {
+        return count;
+    }
+}
+This takes ~5 second for the same file and same character search that is ~14 times faster than second approach and ~576 times faster than first approach.
+
+Now let's try virtual threads
+
+With Java 21's virtual threads
+class ParallelReadWithFileChannelWithVirtualThreads extends FileLetterCounter {
+    public ParallelReadWithFileChannelWithVirtualThreads(File inputFile) {
+        super(inputFile);
+    }
+
+    @Override
+    public long count(char letter) throws IOException, InterruptedException {
+        FileChannel fileChannel = FileChannel.open(inputFile.toPath(), StandardOpenOption.READ);
+        int numberOfThreads = Runtime.getRuntime().availableProcessors() * 1000;
+        long chunkSize = fileChannel.size() / numberOfThreads;
+        List<Thread> threads = new ArrayList<>();
+        List<CounterThread> runnables = new ArrayList<>();
+        for (int i = 0; i < numberOfThreads; i++) {
+            long start = i * chunkSize;
+            MappedByteBuffer buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, start, chunkSize);
+            CounterThread runnable = new CounterThread(buffer,                    (byte) letter);
+            runnables.add(runnable);
+            Thread counterThread =  Thread.startVirtualThread(runnable);
+            threads.add(counterThread);
+        }
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        long result = 0L;
+        for (CounterThread runnable : runnables) {
+            result+=runnable.count();
+        }
+        return result;
+    }
+}
+This comes down to 3.4 sec.
+
+Note: This is not a disk benchmark exercise and the environment was not purely optimized for benchmarking.
