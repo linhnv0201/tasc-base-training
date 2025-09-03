@@ -1,0 +1,193 @@
+1. Trong một câu query, thứ tự thực hiện của các thành phần như thế nào?
+    FROM                    Lấy dữ liệu từ bảng, view.
+                            Thực hiện JOIN nếu có.
+    WHERE                   Lọc dữ liệu hàng nào được giữ lại.
+    GROUP BY                Gom nhóm dữ liệu theo cột hoặc biểu thức.
+    HAVING                  Lọc các nhóm (sau khi group).
+    SELECT                  Chọn các cột, tính toán expression, chạy hàm aggregate (SUM(), AVG(), …).
+    DISTINCT                Loại bỏ bản ghi trùng lặp.
+    ORDER BY                Sắp xếp kết quả.
+    LIMIT / OFFSET / TOP    Giới hạn số dòng trả về.
+
+    Ví dụ: SELECT c.customer_id, c.first_name, c.last_name, SUM(p.amount) AS total_payment
+           FROM customer c
+           JOIN payment p ON c.customer_id = p.customer_id
+           WHERE p.payment_date >= '2005-07-01'
+           GROUP BY c.customer_id, c.first_name, c.last_name
+           HAVING SUM(p.amount) > 100
+           ORDER BY total_payment DESC
+           LIMIT 5;
+
+2. Tìm hiểu
+    Các loại JOIN
+    1. INNER JOIN (nếu khai báo là JOIN thì cũng mặc định là INNER JOIN)
+        Lấy những bản ghi có match ở cả 2 bảng. Chỉ trả về record có đầy đủ dữ liệu
+    2. LEFT JOIN
+        Lấy tất cả các bản ghi bên trái, nếu k match thì trả về null.
+    3. RIGHT JOIN
+        Lấy tất cả các bản ghi bên phải, hiếm dùng. Ví dụ lấy bản ghi payment mà ko có thông tin khách hàng
+    4. FULL OUTER JOIN
+        Lấy tất cả 2 phía (trong MySql ko hỗ trợ nên dùng tạm UNION)
+    5. CROSS JOIN
+        Lấy Cartesian product (mọi kết hợp có thể có).
+        Rất hiếm khi dùng trong thực tế (vì dữ liệu sẽ phình rất to).
+        CROSS JOIN dùng để làm gì?
+            - Sinh dữ liệu tổ hợp (combinations)
+                Ví dụ: muốn sinh danh sách tất cả khách hàng × danh mục phim để sau này check khách nào đã thuê phim nào.
+            - Tạo bảng tham chiếu (dimension table)
+                Ví dụ: muốn tạo lịch trực cho nhân viên trong nhiều ngày.
+                CROSS JOIN employee × calendar để ra tất cả khả năng nhân viên có thể trực trong ngày nào.
+            - So sánh mọi cặp giá trị
+                Ví dụ: muốn so sánh giá thuê của mọi cặp phim với nhau (film × film).
+                Ứng dụng trong phân tích dữ liệu, kiểm tra similarity.
+            - Khi cần thay thế FULL OUTER JOIN trong MySQL
+                Dùng CROSS JOIN kết hợp với điều kiện để giả lập nhiều tình huống.
+            - Sinh dữ liệu test nhanh
+                CROSS JOIN bảng nhỏ nhiều lần có thể tạo ra bảng dữ liệu test lớn.
+
+3. Sub query
+    Subquery là một câu SELECT nằm bên trong một câu SQL khác.
+    Subquery có thể nằm trong: (có ví dụ cụ thể bên query.sql)
+        SELECT
+            Thường dùng để tính thêm 1 cột tính toán
+        FROM
+            Thường dùng khi cần tính toán trung gian.
+        WHERE / HAVING
+            Thường dùng để lọc dữ liệu.
+        Correlated Subquery (Subquery có phụ thuộc)
+            Subquery chạy mỗi lần cho từng dòng ở outer query.
+            Ví dụ: Lấy danh sách khách hàng mà tổng tiền thanh toán lớn hơn mức trung bình của chính họ trong từng lần thanh toán
+
+4. CTE (Common table expression)
+https://datapot.vn/cte-trong-sql-mot-so-ung-dung-nang-cao/?srsltid=AfmBOorTXYM0NtZscP_5yf-vdM04VSpe-R-kxu6qe9tEtR55v4q38Gw2
+https://www.reddit.com/r/SQL/comments/1353051/can_someone_explain_to_me_in_a_way_like_im/?tl=vi
+https://www.reddit.com/r/SQL/comments/1353051/can_someone_explain_to_me_in_a_way_like_im/?tl=vi
+    Là 1 query tạm thời bạn định nghĩa trong câu SQL bằng WITH.
+    Có thể được tham chiếu nhiều lần trong câu SELECT hoặc INSERT/UPDATE/DELETE.
+    Giúp thay thế subquery lồng nhau, làm query dễ đọc hơn.
+    Cú pháp cơ bản : WITH cte_name AS (
+                         SELECT ...
+                         FROM ...
+                         WHERE ...
+                     )
+                     SELECT *
+                     FROM cte_name
+                     WHERE ...;
+    Ví dụ: trong bài toán tìm limit 5 khách hàng có tổng tiền thanh toán nhiều nhất
+
+    Lợi ích:    Query dễ đọc hơn subquery
+                Có thể tái sử dụng nhiều lần trong cùng câu SQL
+
+    Tìm hiểu CTE đệ quy sau.
+
+5. Ranking
+    Hàm Row_Number()
+        Định nghĩa và cú pháp
+        ROW_NUMBER() là một hàm trong SQL được sử dụng để xếp hạng các bản ghi trong một tập kết quả,
+            KHÔNG quan tâm giá trị ở các bản ghi đó là giống hay khác nhau.
+        Hàm này thường đi kèm với mệnh đề OVER để xác định phạm vi của việc đánh số. Cú pháp cơ bản của ROW_NUMBER() như sau:
+            ROW_NUMBER() OVER (ORDER BY column1, column2, ...)
+        Trong đó:
+            ORDER BY: Xác định cột hoặc danh sách các cột mà dựa trên đó dữ liệu sẽ được sắp xếp.
+            column1, column2, …: Các cột sẽ được sử dụng để xác định thứ tự sắp xếp.
+        Đặc điểm
+        ROW_NUMBER() sẽ gán một thứ hạng duy nhất cho mỗi bản ghi tùy thuộc vào thứ tự sắp xếp. Tức là, khi có các
+            giá trị bằng nhau, ROW_NUMBER() sẽ gán thứ hạng một cách tuần tự theo thứ tự xuất hiện của dữ liệu,
+            nếu có nhiều bản ghi có giá trị sắp xếp theo cột đã chọn là bằng nhau, thì sẽ không có sự phân biệt
+            giữa chúng mà sẽ gán số thứ tự tăng dần dựa trên thứ tự xuất hiện trong kết quả sắp xếp.
+
+    Hàm Rank
+        RANK() là một hàm xếp hạng được sử dụng để gán một thứ hạng cho mỗi bản ghi trong một tập kết quả dựa trên một tiêu chí sắp xếp cụ thể.
+        Giống như ROW_NUMBER(), thì RANK() cũng đi kèm với mệnh đề OVER để xác định phạm vi của việc đánh số.
+        Cú pháp cơ bản của như sau:
+            RANK() OVER (ORDER BY column1, column2, ...)
+            Trong đó:
+               ORDER BY: Xác định cột hoặc danh sách các cột mà dựa trên đó dữ liệu sẽ được sắp xếp.
+               column1, column2, …: Các cột sẽ được sử dụng để xác định thứ tự sắp xếp.
+        Đặc điểm
+        Kết quả của hàm RANK() là một thứ hạng duy nhất cho mỗi bản ghi, bắt đầu từ 1 và tăng dần theo thứ tự
+            xuất hiện trong kết quả sắp xếp. Nếu có các giá trị bằng nhau, thì các dòng có giá trị giống nhau
+            sẽ nhận cùng một số xếp hạng, và số xếp hạng tiếp theo sẽ bị bỏ qua (không tăng liên tục).
+
+    Hàm DENSE_RANK()
+    | Function      | Xử lý trùng    | Thứ tự tiếp theo        |Ví dụ với sắp xếp 100, 100, 99, 98
+    | ------------- | -------------- | ----------------------- |----------------
+    | ROW\_NUMBER() | Không quan tâm | Liên tục, không trùng   | 1 2 3 4
+    | RANK()        | Giống nhau     | Bỏ bậc tiếp theo        | 1 1 3 4
+    | DENSE\_RANK() | Giống nhau     | Liền nhau, không bỏ bậc | 1 1 2 3
+
+6. VIEW
+    VIEW là bảng ảo, được tạo từ 1 SELECT query.
+    Nó không chứa dữ liệu vật lý (trừ khi là materialized view, MySQL chưa hỗ trợ native).
+    Chỉ lưu query, mỗi lần SELECT → query chạy trên table thật.
+    Cú pháp: CREATE VIEW view_name AS
+             SELECT column1, column2
+             FROM table_name
+             WHERE condition;
+    Có thể crud trên VIEW không?
+        - SELECT luôn đc
+        - INSERT/ UPDATE/ DELETE : Có thể, nhưng có điều kiện:
+             a) View đơn giản (1 table, không dùng GROUP BY, JOIN phức tạp, DISTINCT, aggregate)
+             Chỉ dùng 1 table gốc, không tính toán phức tạp → CRUD được.
+             b) View phức tạp (JOIN, GROUP BY, SUM, COUNT…)
+                Không thể INSERT/UPDATE trực tiếp, MySQL sẽ báo lỗi.
+                Nguyên nhân: MySQL không biết dòng nào trong table gốc cần update, hoặc tính toán aggregate không có mapping rõ ràng.
+        - 2.3 Cách vẫn cập nhật được view phức tạp (chưa thử)
+            Dùng INSTEAD OF TRIGGER (MySQL 8+ hỗ trợ cho view)
+            Hoặc update trực tiếp table gốc.
+
+         | Hoạt động | View đơn giản (1 table) | View phức tạp (JOIN, GROUP BY, aggregate) |
+         | --------- | ----------------------- | ----------------------------------------- |
+         | SELECT    | ✔ luôn                  | ✔ luôn                                    |
+         | INSERT    | ✔ nếu map rõ table gốc  | ❌                                         |
+         | UPDATE    | ✔ nếu map rõ table gốc  | ❌                                         |
+         | DELETE    | ✔ nếu map rõ table gốc  | ❌                                         |
+
+7. Store Procedure
+    Là một chương trình / thủ tục lưu trữ trong cơ sở dữ liệu.
+    Bao gồm một hoặc nhiều câu lệnh SQL, có thể kèm tham số đầu vào (IN), đầu ra (OUT), hoặc cả hai (INOUT).
+    Được lưu trên DB để tái sử dụng nhiều lần, không cần viết lại query phức tạp.
+    Mục đích tạo Procedure
+        Tái sử dụng logic SQL
+            Không phải viết lại các query phức tạp nhiều lần
+        Tăng hiệu năng
+            Chạy trực tiếp trên DB, giảm số lần query từ ứng dụng
+        Bảo mật dữ liệu
+            Ứng dụng không cần biết chi tiết bảng, chỉ gọi procedure
+        Giảm độ phức tạp ứng dụng
+            Logic tính toán nặng được xử lý trên DB, Java chỉ nhận kết quả
+    Cách gọi: CALL GetCustomerPayment(1);
+    Sử dụng Procedure trong Java Spring Boot (chưa tìm hiểu sâu)
+        a) JdbcTemplate
+            String sql = "{CALL GetCustomerPayment(?)}";
+            List<CustomerPayment> payments = jdbcTemplate.query(
+                sql,
+                new Object[]{1}, // cust_id
+                (rs, rowNum) -> new CustomerPayment(
+                    rs.getInt("customer_id"),
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
+                    rs.getBigDecimal("total_payment")
+                )
+            );
+        b) JPA / Hibernate (native query)
+            @Query(value = "CALL GetCustomerPayment(:custId)", nativeQuery = true)
+            List<CustomerPayment> getCustomerPayment(@Param("custId") Integer custId);
+    Trường hợp nên dùng Store Procedure
+        | Trường hợp                                | Có nên dùng SP?                       |
+        | ----------------------------------------- | ------------------------------------- |
+        | Logic SQL phức tạp / nhiều JOIN, GROUP BY | ✔                                     |
+        | Cần tái sử dụng query nhiều nơi           | ✔                                     |
+        | Tăng hiệu năng trên DB                    | ✔                                     |
+        | Chỉ cần SELECT đơn giản                   | ❌, query trực tiếp trong Java cũng đủ |
+    Note :
+           | Dòng lệnh              | Chức năng                                                      |
+           | ---------------------- | -------------------------------------------------------------- |
+           | `DELIMITER //`         | Thay đổi delimiter tạm thời để procedure có nhiều câu lệnh SQL |
+           | `CREATE PROCEDURE ...` | Tạo một Stored Procedure với tên và tham số đầu vào/ra         |
+           | `BEGIN`                | Bắt đầu block câu lệnh của procedure                           |
+           | `SELECT ...`           | Nội dung logic chính của procedure                             |
+           | `END //`               | Kết thúc block procedure                                       |
+           | `DELIMITER ;`          | Khôi phục delimiter mặc định                                   |
+
+
