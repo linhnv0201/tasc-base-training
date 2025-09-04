@@ -1,0 +1,21 @@
+1. Partition là gì?
+    Partition (phân vùng) trong db là cách chia nhỏ 1 bảng thành nhiều phần(partition) theo tiêu chí cụ thể.
+        VD: theo giá trị cột, theo hash, danh sách
+    Note:
+        Với MySQL, partitioning là logical: bảng vẫn là 1, nhưng dữ liệu được chia ra thành nhiều partition vật lý (lưu trên đĩa).
+        Khi query, MySQL có thể bỏ qua những partition không cần thiết (gọi là partition pruning).
+        Ví dụ:  table order có 100m record có thể chia partition theo năm 2020,2021,...
+2. Khi nào đánh partition?
+    Dữ liệu cực lớn (từ hàng triệu record)
+    Dữ liệu có thể chia theo các partition độc lập (theo ngày, id range, )
+    Các query thường lọc theo tiêu chí chia partition (VD: WHERE order_date BETWEEN '2021-01-01' AND '2021-12-31').
+    Muốn quản lý dễ hơn (xóa dữ liệu cũ bằng cách drop partition thay vì DELETE hàng triệu dòng).
+3. Lợi ích
+    Tăng tốc query:
+        MySQL chỉ đọc partition liên quan → tránh full table scan.
+        Gọi là partition pruning.
+    Dễ quản lý dữ liệu lớn:
+        Xóa dữ liệu cũ → chỉ cần ALTER TABLE DROP PARTITION (nhanh hơn DELETE).
+        Có thể load dữ liệu mới vào 1 partition riêng.
+    Song song hóa truy vấn (một số hệ CSDL):
+        Query có thể chạy trên nhiều partition song song.

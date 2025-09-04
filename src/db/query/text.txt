@@ -191,3 +191,8 @@ https://www.reddit.com/r/SQL/comments/1353051/can_someone_explain_to_me_in_a_way
            | `DELIMITER ;`          | Khôi phục delimiter mặc định                                   |
 
 
+Tóm tắt: Với bảng nhỏ (như trên) → tốc độ như nhau
+         Với bảng cực lớn (hàng triệu bản ghi):
+             CTE: chỉ tốt để tổ chức query dễ đọc.
+             VIEW: không cải thiện hiệu năng, nhưng tiết kiệm công viết lại query.
+             SP: có thể giúp giảm overhead khi ứng dụng phải gọi query nhiều lần, nhờ đóng gói ở DB.

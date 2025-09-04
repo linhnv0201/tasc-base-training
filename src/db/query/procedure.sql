@@ -14,5 +14,7 @@ END;
 
 DELIMITER ;
 
+drop procedure GetCustomerPayment;
+
 CALL GetCustomerPayment(2);
 CALL GetCustomerPayment(1);

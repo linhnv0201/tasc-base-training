@@ -1,0 +1,119 @@
+1.
+    - Clustered Index (CI)
+        Định nghĩa:
+            Clustered Index quyết định cách dữ liệu vật lý trong table được lưu trên đĩa.
+            Một table chỉ có thể 1 clustered index, vì dữ liệu chỉ sắp xếp theo 1 thứ tự vật lý.
+        Ví dụ:
+            Table customer có PRIMARY KEY (customer_id) → MySQL InnoDB tự động tạo clustered index theo customer_id.
+            Dữ liệu trên đĩa sắp xếp theo customer_id.
+        Ưu điểm:
+            SELECT theo range (WHERE customer_id BETWEEN 100 AND 200) nhanh
+            ORDER BY theo cột clustered index rất nhanh
+        Nhược điểm:
+            INSERT/UPDATE/DELETE có thể chậm hơn nếu cần di chuyển nhiều row để giữ thứ tự vật lý.
+
+    - Non-clustered Index (NCI)
+        Định nghĩa:
+            Non-clustered Index là index riêng, lưu key + pointer tới row dữ liệu vật lý
+            Table có thể có nhiều NCI.
+        Ví dụ: CREATE INDEX inx_last_name ON customer(last_name);
+            Dữ liệu vật lý ko thay đổi, chỉ tạo thêm "bản đồ" để truy xuất nhanh
+            Sắp xếp BTree theo column đánh index ví dụ
+                                [BROWN] PK = 2
+                               /      \
+                    [ADAMS] PK=3      [CLARK] PK=5
+                                      /        \
+                              [SMITH] PK=1   [SMITH] PK=4
+
+        Ưu điểm:
+            Có thể tạo nhiều index trên table
+            SELECT theo cột indexed nhanh
+        Nhược điểm:
+            Range query kém hơn clustered index
+            Cập nhật index khi INSERT/UPDATE/DELETE có chi phí thêm
+        So sánh performance
+        | Tiêu chí               | Clustered Index             | Non-Clustered Index                |
+        | ---------------------- | --------------------------- | ---------------------------------- |
+        | Số lượng trên table    | 1                           | Nhiều                              |
+        | Lưu trữ dữ liệu vật lý | Sắp xếp theo index          | Dữ liệu không sắp xếp, chỉ pointer |
+        | SELECT bằng key        | Rất nhanh                   | Nhanh nhưng thêm 1 lookup tới row  |
+        | SELECT range query     | Rất nhanh                   | Chậm hơn (lookup nhiều pointer)    |
+        | INSERT/UPDATE/DELETE   | Có thể chậm (di chuyển row) | Chậm hơn khi update nhiều index    |
+        | ORDER BY               | Rất nhanh                   | Chậm nếu không phải cột index      |
+        Nguyên nhân
+            Clustered index: dữ liệu vật lý sắp xếp → SELECT range / ORDER BY nhanh.
+            Non-clustered index: chỉ có pointer → phải truy cập thêm table row → lookup thêm 1 bước.
+            Nhiều NCI → tốn không gian + chi phí update khi dữ liệu thay đổi.
+        Tip khi thiết kế database:
+            Chọn PRIMARY KEY làm Clustered Index
+            Chỉ tạo Non-clustered Index cho các cột thường dùng để search, filter, join
+            Tránh quá nhiều index → tăng chi phí update/insert/delete
+
+2. Có giới hạn việc đánh bao nhiêu index trong 1 table không?
+   Giới hạn lý thuyết:
+        MySQL InnoDB: tối đa 64 index trên 1 table
+        MySQL MyISAM: tối đa 64 index cũng
+   Giới hạn thực tế:
+        Không nên tạo quá nhiều index → tốn không gian, làm chậm INSERT/UPDATE/DELETE.
+        Mỗi index phải duy trì khi cập nhật dữ liệu → overhead lớn.
+   Kết luận: Có giới hạn vật lý (64 index), nhưng quan trọng là chọn index hợp lý, không nên tạo index vô tội vạ.
+
+3. Việc đánh index dựa trên cơ sở nào?
+   Bạn nên tạo index trên các cột thường xuyên sử dụng để:
+    - WHERE: lọc dữ liệu
+        SELECT * FROM customer WHERE last_name = 'Smith';
+    - JOIN: kết nối giữa 2 bảng
+        SELECT * FROM customer c
+        JOIN payment p ON c.customer_id = p.customer_id;
+    - ORDER BY / GROUP BY: sắp xếp hoặc nhóm dữ liệu
+        SELECT * FROM customer ORDER BY first_name;
+    - Range query / LIKE pattern search
+        Ví dụ: WHERE customer_id BETWEEN 100 AND 200
+   Nguyên tắc:
+        Index giúp truy xuất nhanh, nhưng quá nhiều index → chậm update/insert/delete.
+        Không index tất cả cột → tốn space + overhead.
+
+4. Làm thế nào để biết 1 câu query đã sử dụng index hay chưa?
+    a) Dùng EXPLAIN
+            EXPLAIN SELECT * FROM customer WHERE last_name = 'Smith';
+        Xem cột key: index được MySQL sử dụng
+        Xem rows: số row cần scan → ít row = index hiệu quả
+        Xem type: ideal = ref, const; nếu ALL → full table scan
+    b) Dùng SHOW INDEX
+            SHOW INDEX FROM customer;
+       Kiểm tra index đã tạo trên table
+       Kết hợp với EXPLAIN → xem query có dùng index nào
+    c) Dùng EXPLAIN ANALYZE (MySQL 8+)
+            EXPLAIN ANALYZE SELECT * FROM customer WHERE last_name = 'Smith';
+        Hiển thị thời gian thực tế từng bước
+        Kiểm tra lookup bằng index hay scan toàn table
+
+
+Đọc thêm:
+1. Cách lưu dữ liệu trong CI
+    InnoDB lưu Clustered Index dưới dạng B+Tree.
+    Leaf node của B+Tree chứa toàn bộ row data.
+    Dữ liệu được sắp xếp theo Primary Key (PK).
+ 👉 Do đó khi bạn muốn tìm một record theo PK, MySQL phải duyệt B+Tree từ root → internal node → leaf node.
+📌 2. Độ phức tạp B+Tree
+    Với n bản ghi, chiều cao cây B+Tree ≈ log_b(n) với b là số key tối đa mỗi node có thể chứa (phụ thuộc page size, thường là 16KB).
+    Thực tế B+Tree có b rất lớn (hàng trăm / hàng ngàn key mỗi node), nên chiều cao của cây thường rất nhỏ (thường chỉ 3–4 tầng cho cả triệu row).
+    Do đó lookup là O(log n) về mặt lý thuyết.
+📌 3. Vì sao không phải O(1)?
+    Nếu CI được lưu dưới dạng hash table → tìm theo PK sẽ là O(1).
+    Nhưng MySQL chọn B+Tree thay vì hash vì B+Tree có ưu điểm:
+        Hỗ trợ range query (BETWEEN, ORDER BY, LIKE 'abc%').
+        Hỗ trợ truy cập theo thứ tự.
+        Hash index thì chỉ giỏi lookup chính xác, không làm được range.
+    👉 Vì thế CI chấp nhận O(log n), đổi lại có tính năng mạnh hơn.
+📌 4. Minh họa
+    Giả sử bảng có 1 triệu row:
+    Hash table → tìm PK = O(1).
+    B+Tree (fanout lớn, ví dụ b=1000):
+        log₁₀₀₀(1,000,000) ≈ 2–3 bước.
+        Tức là MySQL chỉ cần đọc 2–3 page từ disk/buffer để tìm row.
+        Thực tế rất gần với O(1), nhưng về lý thuyết vẫn là O(log n).
+✅ Kết luận:
+    CI lookup = O(log n) (nhưng nông, gần như constant trong thực tế).
+    Ưu điểm: hỗ trợ range scan & sắp xếp tự nhiên.
+    Nhược điểm: INSERT/DELETE có thể chậm vì phải duy trì thứ tự B+Tree.
