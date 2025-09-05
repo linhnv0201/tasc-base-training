@@ -1,0 +1,72 @@
+1. Dependency Injection
+Tight-coupling
+    Trong lập trình Java, khái niệm tight-coupling (liên kết ràng buộc) ám chỉ mối quan hệ giữa các lớp (classes) quá chặt chẽ.
+    Khi sử dụng tight-coupling, các lớp kết nối với nhau một cách mạnh mẽ, và sự thay đổi trong một lớp có thể ảnh hưởng
+    đến toàn bộ hệ thống hoặc các lớp khác. Điều này có thể tạo ra sự phụ thuộc không mong muốn và
+    làm cho mã nguồn trở nên khó bảo trì và mở rộng.
+
+Loose-coupling
+    Ngược lại, loose coupling (liên kết lỏng) là cách để giảm bớt sự phụ thuộc giữa các lớp với nhau. Trong loose coupling,
+    các lớp hoạt động độc lập và không biết gì về cấu trúc hoặc chi tiết triển khai của các lớp khác. Điều này tạo điều kiện
+    thuận lợi cho việc mở rộng và bảo trì mã nguồn.
+
+Dependency Injection (DI)
+    Một cách để thực hiện loose coupling là sử dụng Dependency Injection (DI)
+        - Dependency Injection là một mô hình lập trình và thiết kế phần mềm, không chỉ áp dụng cho Java mà còn cho nhiều ngôn ngữ khác. Đây là
+            một phương pháp giúp giảm sự phụ thuộc giữa các thành phần (hoặc lớp) trong ứng dụng.
+        - Trong DI, các phụ thuộc của một đối tượng không được tạo bên trong đối tượng đó, mà được cung cấp từ bên ngoài. Cụ thể,
+            DI thường được thực hiện thông qua ba cách chính: Constructor Injection, Setter Injection và Interface Injection.
+
+2. IoC
+Annatation (chú thích)
+    Annotation là một tính năng quan trọng trong lập trình Java, cho phép bạn thêm các thông tin bổ sung vào mã nguồn của bạn, giúp
+        trình biên dịch và các công cụ phát triển hiểu và xử lý mã nguồn của bạn một cách thông minh. Annotation được sử dụng rộng rãi
+        trong Java để đánh dấu và cung cấp metadata cho các lớp, phương thức, biến, hoặc gói.
+
+    Cú pháp: @ + tên của annotation vd: @Override, @Deprecated
+        - @Component annotation: là một annotation đánh dấu trên các class để cho biết chúng là các bean được quản lý bởi Spring Boot. Điều
+         này có nghĩa là Spring Boot sẽ tạo và quản lý các instance của các class được đánh dấu @Component.
+         Nói đơn giản: nếu muốn container quản lý class này(gọi ở class khác mà k cần khởi tạo lại (đã khởi tạo sẫn trong container))
+                        thì đánh dấu @Component ở class đó.
+
+        - @Autowired annotation: được sử dụng để tiêm (inject) các dependency vào các thành phần khác. Khi bạn đánh dấu một thuộc tính
+         bằng @Autowired, Spring Boot sẽ tự động tiêm một instance của dependency tương ứng vào thuộc tính đó.
+
+IoC
+    Inversion of Control (loC) là một nguyên tắc lập trình, trong đó luồng điều khiển trong ứng dụng không được quyết định bởi ứng dụng
+        mà được quyết định bởi một framework hoặc container bên ngoài.
+    IoC thường đi kèm với DI, nơi các dependency được quản lý và cung cấp bởi một framework hoặc container. Framework sẽ quản lý việc tạo
+        và quản lý các đối tượng và phụ thuộc.
+
+ApplicationContext quản lí các đối tượng có trong container
+Trong demo minh họa, nếu khai báo Component cho EmailService và Client thì cơ chế của IoC sẽ tự check và injection luôn EmailService
+    vào trong Client
+Khai báo    @Autowired                                  trong class Client thì sẽ tiêm luôn đối tượng EmailService vào Client
+            private MessageService messageService;
+
+3.Bean
+Spring Bean là gì?
+    In Spring, the objects that form the backbone of your application and that are managed by the Spring IoC container are called beans.
+    A bean is an object that is instantiated, assembled, and otherwise managed by the Spring IoC container
+        => Những object mà được tạo và quản lý bở Spring loc Container thì được gọi là Bean
+
+Cách Tạo Bean
+    1. Sử dụng @Component: @Repository, @Service, @Controller
+    2. Dùng @Bean trong class có annotation @Configuration
+        @Configuration:
+            Là một Annotation đánh dấu trên một class, cho biết rằng class đó chứa các thông tin cấu hình cho ứng dụng.
+            Spring Boot sẽ tìm và quét các class được đánh dấu @Configuration để tạo và quản lý các beans.
+        @Bean: là một Annotation đánh dấu trên một method trong class được đánh dấu @Configuration. Nó cho biết rằng method đó
+                tạo và trả về một bean, và Spring Boot nên quản lý bean đó trong ứng dụng.
+
+Bean Scope (Singleton và Prototype là 2 loại hay dùng nhất)
+    Singleton: container chỉ khởi tạo 1 instance của bean và trả về chính nó nếu như có yêu cầu. (default nếu ko khai báo)
+    Prototype: mỗi khi có yêu cầu thì container sẽ tạo ra một instance mới và trả về.
+    Request: khởi tạo instance cho một HTTP Request
+    Session: khởi tạo instance cho một HTTP Session
+    Application: khởi tạo instance cho một vòng đời của ServletContext
+    WebSocket: khởi tạo instance cho một Websocket Session
+
+=> Sử dụng @Scope: vd: @Scope("singleton")     @Scope("prototype")
+
+Tham khảo: https://www.youtube.com/watch?v=tABy930K0Ws
