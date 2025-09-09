@@ -14,8 +14,8 @@ public class ReadFileService2 {
   static int numThreads = Runtime.getRuntime().availableProcessors() / 2;
   static ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 
-  public static List<LogEntry> loadLogs() {
-    List<LogEntry> allLogs = new ArrayList<>();
+  public static List<List<LogEntry>> loadLogs() {
+    List<List<LogEntry>> partialResults = new ArrayList<>();
 
     try {
       int totalLines = 0;
@@ -24,15 +24,13 @@ public class ReadFileService2 {
       }
 
       int chunkSize = totalLines / numThreads;
-      List<List<LogEntry>> partialResults = new ArrayList<>();
 
-      // Tạo danh sách "task" cho từng thread
       for (int i = 0; i < numThreads; i++) {
         int startLine = i * chunkSize;
         int endLine = (i == numThreads - 1) ? totalLines : startLine + chunkSize;
 
         List<LogEntry> localList = new ArrayList<>();
-        partialResults.add(localList);
+        partialResults.add(localList); // giữ từng list riêng biệt
 
         int finalStartLine = startLine;
         int finalEndLine = endLine;
@@ -60,16 +58,12 @@ public class ReadFileService2 {
         Thread.sleep(100);
       }
 
-      // Merge tất cả list lại
-      for (List<LogEntry> part : partialResults) {
-        allLogs.addAll(part);
-      }
-
     } catch (Exception e) {
       e.printStackTrace();
     }
 
-    return allLogs;
+    // ❌ Không gộp nữa
+    return partialResults; // List<List<LogEntry>>
   }
 
   private static void parseAndAddLog(String log, List<LogEntry> logs) {

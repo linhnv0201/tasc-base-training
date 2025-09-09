@@ -31,7 +31,7 @@
         Nhược điểm:
             Range query kém hơn clustered index
             Cập nhật index khi INSERT/UPDATE/DELETE có chi phí thêm
-        So sánh performance
+        So sánh performance (ci nhanh hơn xấp xỉ 2 lần Olog(n))
         | Tiêu chí               | Clustered Index             | Non-Clustered Index                |
         | ---------------------- | --------------------------- | ---------------------------------- |
         | Số lượng trên table    | 1                           | Nhiều                              |
@@ -47,6 +47,7 @@
         Tip khi thiết kế database:
             Chọn PRIMARY KEY làm Clustered Index
             Chỉ tạo Non-clustered Index cho các cột thường dùng để search, filter, join
+            Chọn đánh index trường ít thay đổi do sắp xếp lại đi thay đổi giá trị
             Tránh quá nhiều index → tăng chi phí update/insert/delete
 
 2. Có giới hạn việc đánh bao nhiêu index trong 1 table không?
@@ -117,3 +118,21 @@
     CI lookup = O(log n) (nhưng nông, gần như constant trong thực tế).
     Ưu điểm: hỗ trợ range scan & sắp xếp tự nhiên.
     Nhược điểm: INSERT/DELETE có thể chậm vì phải duy trì thứ tự B+Tree.
+
+Xem show index
+| Trường             | Ý nghĩa                                            | Giá trị trong ví dụ (`PRIMARY` trên `id`) |
+| ------------------ | -------------------------------------------------- | ----------------------------------------- |
+| **Table**          | Tên bảng chứa index                                | `test_data`                               |
+| **Non\_unique**    | 0 = unique, 1 = non-unique                         | `0` (vì PK luôn unique)                   |
+| **Key\_name**      | Tên index                                          | `PRIMARY`                                 |
+| **Seq\_in\_index** | Thứ tự cột trong index (1, 2, …)                   | `1`                                       |
+| **Column\_name**   | Cột nằm trong index                                | `id`                                      |
+| **Collation**      | Cách sắp xếp: `A` = Asc, `D` = Desc                | `A`                                       |
+| **Cardinality**    | Ước lượng số giá trị khác nhau trong index         | `995713`                                  |
+| **Sub\_part**      | Prefix length nếu index 1 phần cột (vd: email(10)) | `NULL`                                    |
+| **Packed**         | Index có nén hay không                             | `NULL`                                    |
+| **Null**           | Cho biết cột có thể NULL hay không                 | trống (vì PK = NOT NULL)                  |
+| **Index\_type**    | Kiểu index: BTREE, HASH, FULLTEXT…                 | `BTREE`                                   |
+| **Comment**        | Chú thích hệ thống                                 | `""`                                      |
+| **Index\_comment** | Chú thích khi tạo index                            | `""`                                      |
+| **Visible**        | `YES` = Optimizer dùng index, `NO` = bỏ qua        | `YES`                                     |

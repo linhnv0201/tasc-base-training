@@ -1,4 +1,6 @@
-package excercise;
+package excercise.demo1;
+
+import excercise.LogEntry;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -35,7 +37,7 @@ public class SearchSolution {
           String level = scanner.nextLine();
           long start2 = System.currentTimeMillis();
           for (LogEntry log : logs) {
-            if (log.level.equalsIgnoreCase(level)) {
+            if (log.getLevel().equalsIgnoreCase(level)) {
               System.out.println(log);
               result.add(log);
             }
@@ -51,7 +53,7 @@ public class SearchSolution {
           LocalDateTime end = LocalDateTime.parse(scanner.nextLine(), formatter);
           long start3 = System.currentTimeMillis();
           for (LogEntry log : logs) {
-            LocalDateTime ts = log.timestamp;
+            LocalDateTime ts = log.getTimestamp();
             if (!ts.isBefore(start) && !ts.isAfter(end)) {
               System.out.println(log);
               result.add(log);
@@ -66,7 +68,7 @@ public class SearchSolution {
           String keyword = scanner.nextLine();
           long start4 = System.currentTimeMillis();
           for (LogEntry log : logs) {
-            if (log.message.toLowerCase().contains(keyword.toLowerCase())) {
+            if (log.getMessage().toLowerCase().contains(keyword.toLowerCase())) {
               System.out.println(log);
               result.add(log);
             }

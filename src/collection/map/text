@@ -27,3 +27,9 @@ Khi bạn put(key, value) vào HashMap:
     Nếu đã có dữ liệu trong bucket:
     Nếu key giống nhau → ghi đè value.
     Nếu key khác nhau → cả hai cặp được giữ trong cùng bucket (trong 1 LinkedList hoặc Tree).
+
+    Nếu bucket trống → chắc chắn không có key.
+    Nếu bucket có phần tử:
+    Trước Java 8: bucket lưu dưới dạng LinkedList, nên phải duyệt tuần tự từng node → O(n).
+    Từ Java 8: nếu bucket có quá nhiều phần tử (va chạm nhiều), Java chuyển bucket đó thành cây đỏ-đen (red-black tree) → O(log n).
+    Trong quá trình duyệt, Java so sánh bằng:

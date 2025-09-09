@@ -1,4 +1,6 @@
-package excercise;
+package excercise.demo1;
+
+import excercise.LogEntry;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

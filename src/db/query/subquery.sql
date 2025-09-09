@@ -1,6 +1,5 @@
 
 #dùng subquery để tính thêm tổng thanh toán của 1 ng
--- lỗi dòng 57 do parser
 SELECT
     c.customer_id,
     c.first_name,
@@ -12,8 +11,6 @@ SELECT
     ) AS payment_count
 FROM customer AS c
 LIMIT 10;
-
-
 
 #dùng subquery trong from để tính tổng tiền khách hàng rồi lọc lấy 5
 select t.customer_id, total_payment

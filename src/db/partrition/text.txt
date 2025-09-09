@@ -19,3 +19,8 @@
         Có thể load dữ liệu mới vào 1 partition riêng.
     Song song hóa truy vấn (một số hệ CSDL):
         Query có thể chạy trên nhiều partition song song.
+
+
+    Note:Nếu dữ liệu sẽ lớn ngay từ đầu (ví dụ > vài triệu bản ghi) → nên thiết kế partition khi thiết kế DB.
+         Nếu dữ liệu ban đầu nhỏ, tăng dần theo thời gian → có thể partition sau khi thấy bảng quá lớn hoặc truy vấn chậm.
+         Partition thường áp dụng cho bảng có > 1 triệu bản ghi, truy vấn theo ngày/thời gian hoặc theo key phân vùng rõ ràng.
