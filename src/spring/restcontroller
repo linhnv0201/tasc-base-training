@@ -1,0 +1,118 @@
+1. So sánh 2 @
+@Controller
+    Là annotation truyền thống trong Spring MVC.
+    Dùng để xử lý request và trả về view (HTML, JSP, Thymeleaf…)
+    Thường không trả về JSON trực tiếp, mà trả về tên view và dữ liệu được gắn trong Model.
+    Ví dụ:  @Controller
+            public class HomeController {
+
+                @GetMapping("/home")
+                public String home(Model model) {
+                    model.addAttribute("message", "Hello Spring MVC!");
+                    return "home"; // sẽ map tới home.html hoặc home.jsp
+                }
+            }
+    Ở ví dụ trên:
+        Model chứa dữ liệu để view render
+        return "home" → Spring tìm home.html trong templates (Thymeleaf)
+
+@RestController
+    Là annotation mới, tiện lợi trong Spring Boot (Spring 4+)
+    Kết hợp @Controller + @ResponseBody
+    Trả về dữ liệu JSON / XML trực tiếp, không cần view
+    Dùng cho API REST
+    Ví dụ:  @RestController
+            @RequestMapping("/api/users")
+            public class UserController {
+
+                @GetMapping("/{id}")
+                public User getUser(@PathVariable Long id) {
+                    return new User(id, "Nguyen Linh", "linh@example.com");
+                }
+            }
+    Ở ví dụ trên:
+        Không cần Model
+        Spring tự serialize User → JSON
+        Phù hợp cho front-end gọi API bằng AJAX, React, Angular, Postman
+
+    | Tiêu chí           | `@Controller`                         | `@RestController`              |
+    | ------------------ | ------------------------------------- | ------------------------------ |
+    | Mục đích           | Trả về **view (HTML/JSP)**            | Trả về **data (JSON/XML)**     |
+    | Annotation bổ sung | Cần dùng `@ResponseBody` nếu trả JSON | Không cần, tự động JSON        |
+    | Thường dùng cho    | Web app render server-side            | API REST, microservice         |
+    | Trả về             | `String` (tên view) hoặc ModelAndView | Object → Spring serialize JSON |
+
+2.Routing
+    Routing là cách xác định URL nào sẽ gọi method nào trong Controller.
+    | Annotation        | URL example    | Mục đích                |
+    | ----------------- | -------------- | ----------------------- |
+    | `@RequestMapping` | `/api/users`   | Base URL cho Controller |
+    | `@GetMapping`     | `/api/users/1` | Lấy dữ liệu (GET)       |
+    | `@PostMapping`    | `/api/users`   | Tạo dữ liệu (POST)      |
+    | `@PutMapping`     | `/api/users/1` | Cập nhật dữ liệu (PUT)  |
+    | `@DeleteMapping`  | `/api/users/1` | Xóa dữ liệu (DELETE)    |
+
+    @PathVariable: lấy giá trị từ URL
+    @RequestParam: lấy giá trị query param (?page=1&size=10)
+    @RequestBody: lấy dữ liệu JSON body
+
+3. Tìm hiểu cách mà controller nhận input đầu vào là : params, body, path variable, header....
+    @RequestParam – Query Parameters
+        Dùng để lấy dữ liệu từ URL query string: ?key=value
+        Thường dùng với GET, nhưng POST cũng được
+        Ví dụ: @GetMapping("/search")
+               public String search(@RequestParam String keyword,
+                                    @RequestParam(required = false) Integer page) {
+                   return "Keyword: " + keyword + ", page: " + page;
+               }
+        URL: /search?keyword=spring&page=2
+        keyword = "spring", page = 2
+        💡 required = false → param không bắt buộc
+    @PathVariable – Path Parameters
+        Lấy dữ liệu từ URL path
+        Thường dùng với RESTful API
+        Ví dụ:  @GetMapping("/users/{id}")
+                public String getUser(@PathVariable Long id) {
+                    return "User id: " + id;
+                }
+        URL: /users/123 → id = 123
+        | Loại            | Ý nghĩa                                            | Ví dụ                        |
+        | --------------- | -------------------------------------------------- | ---------------------------- |
+        | `@PathVariable` | Xác định **một resource cụ thể**                   | `/users/123` → user id = 123 |
+        | `@RequestParam` | Truyền **tham số lọc, tìm kiếm, phân trang, sort** | `/users?name=Alice&page=2`   |
+        PathVariable → resource “bắt buộc”, là phần cốt lõi của URL
+        RequestParam → tham số tùy chọn, để điều chỉnh request nhưng không xác định resource
+
+    @RequestBody – Body của Request
+        Dùng với POST/PUT/PATCH
+        Spring sẽ deserialize JSON/XML body thành object Java
+        Ví dụ: @PostMapping("/users")
+               public String createUser(@RequestBody UserRequest request) {
+                   return "Created user: " + request.getName();
+               }
+           Body JSON: {
+                        "name": "Nguyen Linh",
+                        "email": "linh@example.com"
+                      }
+    @RequestHeader – Header của Request
+        Lấy dữ liệu từ HTTP headers
+        Ví dụ: Authorization token, Content-Type, custom headers
+        Ví dụ: @GetMapping("/info")
+               public String getInfo(@RequestHeader("Authorization") String authToken) {
+                   return "Token: " + authToken;
+               }
+        Header: Authorization: Bearer <token>
+    @CookieValue – Cookie
+        Lấy giá trị từ cookie của client
+        Ví dụ: @GetMapping("/cart")
+               public String getCart(@CookieValue(value = "sessionId", required = false) String sessionId) {
+                   return "Session: " + sessionId;
+               }
+    @ModelAttribute – Form Data / Object
+        Dùng để map form input hoặc query param thành object
+        Thường dùng cho web app render server-side
+        Ví dụ:  @PostMapping("/form")
+                public String submitForm(@ModelAttribute UserRequest user) {
+                    return "Name: " + user.getName();
+                }
+        Form data: name=Nguyen+Linh&email=linh@example.com

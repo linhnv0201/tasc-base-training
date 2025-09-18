@@ -1,0 +1,6 @@
+1. Key
+Mô tả
+    Bước 1: A dùng private key ký → tạo chữ ký số → xác thực nguồn gốc.
+    Bước 2: A mã hóa dữ liệu (có chữ ký) bằng public key của B → chỉ B mới đọc được.
+    Bước 3: B giải mã bằng private key → lấy dữ liệu.
+    Bước 4: B xác thực chữ ký bằng public key của A → chắc chắn dữ liệu do A gửi.

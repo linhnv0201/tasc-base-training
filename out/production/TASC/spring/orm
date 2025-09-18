@@ -1,0 +1,409 @@
+1. ORM là gì?
+    ORM (Object-Relational Mapping) là kỹ thuật giúp ánh xạ dữ liệu từ
+        cơ sở dữ liệu quan hệ vào các đối tượng trong mã nguồn. Điều này giúp giảm sự phụ thuộc vào
+        cấu trúc của cơ sở dữ liệu, đồng thời tạo ra một cách tiếp cận linh hoạt hơn trong việc quản lý dữ liệu.
+    Ưu điểm của ORM là gì?
+       Giảm viết SQL thủ công → code ngắn gọn, dễ đọc.
+       Tăng năng suất → thao tác CRUD nhanh, ít lặp lại.
+       Tính trừu tượng → chuyển đổi DBMS (MySQL, PostgreSQL, SQLite…) dễ dàng hơn.
+       An toàn hơn → hạn chế SQL Injection nhờ query binding((hay còn gọi là parameter binding) là kỹ thuật truyền
+                                                        tham số an toàn vào câu lệnh SQL thay vì ghép chuỗi trực tiếp.).
+       Tích hợp tốt với OOP → quản lý dữ liệu như object.
+    Nhược điểm:
+        Hiệu năng kém hơn so với SQL thuần, nhất là query phức tạp
+        Thiếu tối ưu → ORM thường sinh query dư thừa hoặc nặng.
+        Học ORM không thay thế SQL → vẫn phải hiểu SQL để debug/tối ưu.
+        Giới hạn tính năng đặc thù của từng hệ CSDL (ví dụ stored procedure, trigger).
+
+    Cơ chế hoạt động:
+                      Mapping
+                        Class ↔ Table, Field ↔ Column thông qua annotation hoặc XML.
+                      Persistence Context (1st level cache)
+                        ORM quản lý object trong bộ nhớ, theo dõi thay đổi (dirty checking).
+                      CRUD tự động
+                        persist → INSERT, merge → UPDATE, remove → DELETE, find → SELECT.
+                      Query Object-oriented
+                        JPQL/HQL/Criteria → ORM dịch ra SQL.
+                      Relationship handling
+                        @OneToMany, @ManyToOne, @ManyToMany → ORM sinh JOIN tự động.
+                      Transaction & Cache
+                        ORM quản lý transaction và cache (level 1) để tối ưu hiệu năng.
+
+    So sánh performance
+        | Tiêu chí                  | JDBC thuần                      | ORM (Hibernate/JPA)                                     |
+        | ------------------------- | ------------------------------- | ------------------------------------------------------- |
+        | **Tốc độ thực thi**       | Nhanh, gần sát SQL, ít overhead | Chậm hơn một chút do mapping, cache, lazy loading       |
+        | **SQL tối ưu**            | Bạn tự viết → tối ưu tuyệt đối  | ORM sinh SQL → đôi khi không tối ưu, cần tuning         |
+        | **Batch / Bulk**          | Dễ tối ưu cho batch             | Cần cấu hình (`batchSize`) để tránh N+1 problem         |
+        | **Cache**                 | Không có, phải tự implement     | Level 1 (Persistence Context) tự động, Level 2 optional |
+        | **Phát triển & maintain** | Code dài, dễ trùng lặp          | Dễ viết, dễ maintain, giảm code CRUD                    |
+
+     Câu hỏi: tại sao vẫn dùng orm khi các ứng dụng thực tế phức tạp?
+        Khi ứng dụng lớn lên, ta phải xử lý hàng chục/hàng trăm bảng với nhiều mối quan hệ (1–n, n–n, kế thừa, join phức tạp…). Nếu chỉ dùng JDBC:
+        - Bạn phải tự viết SQL thủ công → dễ trùng lặp, khó bảo trì.
+        - Mapping ResultSet sang object (DTO/Entity) phải làm tay.
+        - Quản lý transaction, connection pool, lazy loading… khá phức tạp.
+        ORM giúp:
+            Tự động ánh xạ (mapping) giữa bảng ↔ class
+            Quản lý quan hệ phức tạp dễ hơn
+            Tích hợp với transaction và caching
+                ORM hỗ trợ transaction management, entity caching, lazy loading, batch fetching…
+                Giúp ứng dụng lớn chạy hiệu quả hơn và dễ quản lý hơn.
+
+        Nhưng tại sao không bỏ ORM để viết SQL tay?
+            Thực tế nhiều hệ thống lớn kết hợp cả ORM và SQL thủ công:
+            ORM dùng cho 80–90% CRUD (insert/update/delete/find đơn giản).
+            SQL/Stored Procedure thuần dùng cho query phức tạp, tối ưu hiệu năng (ví dụ báo cáo, thống kê, big data query).
+
+    Mối liên hệ giữa ORM, JPA, Spring Data Jpa và Hibernate
+        a. ORM (Object–Relational Mapping)
+                Là kỹ thuật (concept), không phải framework cụ thể.
+                Dùng để ánh xạ (map) object trong code (class, field) với dữ liệu trong DB (table, column).
+                Mục tiêu: thao tác với DB thông qua object thay vì viết SQL trực tiếp.
+            Ví dụ Class User mapping với table users, field email mapping với column email
+          -> ORM ko chỉ ra cho bạn framework nào cả, nó chỉ là ý tưởng chung
+        b. JPA (Java Persistece API)
+                JPA là 1 specifiaction(đặc tả chuẩn) của ORM
+                JPA ko phải là framework, nó chỉ là interface + annotation
+                Ví dụ:      @Entity
+                            @Table(name = "users")
+                            public class User {
+                                @Id
+                                private Long id;
+
+                                @Column(name = "email")
+                                private String email;
+                            }
+                    Đặc điểm: JPA chỉ định nghĩa API và quy tắc, ko tự thực thi
+                    Để chạy đc JPA cần 1 implemantation (cài đặt).
+        c. Hibernate
+                Hibernate là 1 ORM framework và cũng là implematation phổ biến nhất của JPA
+                Trước khi JPA ra đời, hibernate đã có orm riêng. sau này Hibernate implement JPA nên bạn có thể dùng
+                    annotation JPA chung với Hibernate.
+                Ví dụ: Khi bạn gọi:  User user = entityManager.find(User.class, 1L);
+                    Đây là API của JPA.
+                    Nhưng Hibernate đứng sau sẽ sinh ra SQL và query DB thật sự.
+                -> Nghĩa là JPA là giao diện, Hibernate là 1 trong những nhà cung cấp(provider)
+        d. Spring Data JPA
+                Là module trong Spring Data do Spring phát triển
+                Xây dựng trên JPA, nhằm đơn giản hóa hơn nữa việc viết repository
+                Bạn chỉ cần viết interface, ko cần code SQL hay query cụ thể
+                Ví dụ:  public interface UserRepository extends JpaRepository<User, Long> {
+                            List<User> findByEmail(String email);
+                        }
+                    Không cần code SQL hay EntityManager.
+                    Spring Data JPA sẽ generate SQL dựa trên tên method (findByEmail).
+                    Bên dưới, nó vẫn gọi JPA API → JPA provider (Hibernate) thực thi SQL.
+
+
+2. Spring JPA có phải là 1 triển khai của ORM hay không ?
+Spring Data JPA không trực tiếp là một ORM, mà là lớp trừu tượng (abstraction) giúp bạn làm việc với JPA (Java Persistence API) dễ hơn.
+    JPA: là specification (chuẩn) cho ORM trong Java. Nó chỉ định cách ánh xạ (mapping) object ↔ database,
+            nhưng không có code triển khai cụ thể.
+    Hibernate, EclipseLink…: mới là ORM framework thực sự, tức implementation của JPA.
+    Spring Data JPA: là lớp tiện ích của Spring giúp làm việc với JPA dễ hơn, tự động tạo repository, query, v.v. Nó vẫn
+                    cần một ORM bên dưới (thường là Hibernate).
+
+3. Tìm hiểu các loại quan hệ trong JPA : Many To One, One To Many, Many To Many
+    Many-to-One (nhiều -> một)
+    Ví dụ: Nhiều Employee thuộc về 1 Department
+            @Entity
+            public class Employee {
+                @Id
+                @GeneratedValue
+                private Long id;
+
+                private String name;
+
+                @ManyToOne
+                @JoinColumn(name = "department_id") // FK trong bảng Employee
+                private Department department;
+            }
+            Ở đây, cột department_id trong Employee là foreign key.
+            Hướng tham chiếu từ nhiều bản ghi (Employee) → một bản ghi (Department).
+
+    One-to-Many (một nhiều)
+    Ví dụ: Một Department có nhiều Employee
+            @Entity
+            public class Department {
+                @Id
+                @GeneratedValue
+                private Long id;
+
+                private String name;
+
+                @OneToMany(mappedBy = "department") // Tham chiếu ngược lại field trong Employee
+                private List<Employee> employees;
+            }
+            mappedBy = "department" nghĩa là mối quan hệ này được ánh xạ dựa trên department ở class Employee.
+            Thường đi cùng với Many-to-One để tạo quan hệ 2 chiều.
+
+    Many-to-Many
+    Ví dụ: Một Student có thể có nhiều Course và 1 Course có nhiều Student
+@Entity                                                                 | @Entity
+public class Student {                                                  | public class Course {
+    @Id @GeneratedValue                                                 |     @Id @GeneratedValue
+    private Long id;                                                    |     private Long id;
+    private String name;                                                |     private String title;
+                                                                        |
+    @ManyToMany                                                         |     @ManyToMany(mappedBy = "courses")
+    @JoinTable(                                                         |     private List<Student> students;
+        name = "student_course",                                        | }
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private List<Course> courses;
+}
+            JPA sẽ tạo bảng trung gian student_course để lưu quan hệ.
+            mappedBy dùng để chỉ ra quan hệ 2 chiều.
+
+4. Các loại Cascade type, Fetch type trong JPA
+    Cascade định nghĩa việc hành động trên entity cha có được lan truyền xuống các entity con hay không.
+    Trong JPA có các loại:
+        CascadeType.PERSIST → khi persist() cha, con cũng được persist(insert vào db ).(Khi lưu 1 entity,
+                                    các entity con cũng sẽ được tự động lưu. Hữu ích khi create cha và con cùng lúc)
+            Ví dụ:
+            @Entity
+            class Department {
+                @Id @GeneratedValue Long id;
+                String name;
+
+                @OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST)
+                List<User> users = new ArrayList<>();
+            }
+
+            @Entity
+            class User {
+                @Id @GeneratedValue Long id;
+                String name;
+
+                @ManyToOne
+                Department department;
+            }
+            Test code
+                Department dept = new Department();
+                dept.setName("IT");
+
+                User u1 = new User(); u1.setName("Alice"); u1.setDepartment(dept);
+                User u2 = new User(); u2.setName("Bob");   u2.setDepartment(dept);
+
+                dept.getUsers().add(u1);
+                dept.getUsers().add(u2);
+
+                // Chỉ cần persist cha
+                entityManager.persist(dept);
+
+        CascadeType.MERGE → khi merge() cha, con cũng merge.
+        CascadeType.REMOVE → khi remove() cha, con cũng bị xóa.(Khi update 1 entity cha đã bị detach,
+                                                            các thay đổi trên entity con cũng sẽ được cập nhật)
+        CascadeType.REFRESH → khi refresh() cha, con cũng refresh từ DB.
+                                ( Khi làm mới trạng thái của entity từ DB, các entity con cũng được cập nhật)
+        CascadeType.DETACH → khi detach() cha, con cũng detach khỏi persistence context.
+                            ( Khi tách 1 entity cha ra khỏi `Persistence Context` , các entity con cũng sẽ bị tách theo)
+        CascadeType.ALL → bao gồm tất cả các loại trên.
+        📌 Ví dụ: Một Department có nhiều Employee. Nếu cascade = CascadeType.ALL, khi bạn xóa Department, tất cả
+            Employee liên quan cũng sẽ bị xóa.
+
+    Fetch type xác định cách JPA tải dữ liệu liên kết (EAGER hoặc LAZY).
+        FetchType.EAGER → tải dữ liệu liên quan ngay lập tức (JOIN hoặc select phụ).
+        FetchType.LAZY → chỉ tải khi được truy cập (dùng proxy).
+        📌 Quy tắc mặc định trong JPA:
+        @ManyToOne / @OneToOne → mặc định EAGER.
+        @OneToMany / @ManyToMany → mặc định LAZY.
+    Ví dụ:  @Entity
+            public class Department {
+                @Id @GeneratedValue
+                private Long id;
+                private String name;
+
+                @OneToMany(mappedBy = "department",
+                           cascade = CascadeType.ALL,   // cascade mọi thao tác
+                           fetch = FetchType.LAZY)      // chỉ load employees khi cần
+                private List<Employee> employees;
+            }
+            👉 Khi departmentRepository.delete(dept), tất cả Employee trong dept cũng bị xóa (cascade).
+            👉 Khi gọi dept.getEmployees(), JPA mới query lấy employees (lazy).
+    Mục đích chính: eager để load sẵn dữ liệu nhỏ cần thấy luôn many to one, one to one như user cần load luôn
+                    role, phòng ban còn lazy thì khi nào phòng ban cần các user thì mới lấy đỡ tránh lãng phí
+
+5. Tìm hiểu cách convert DTO -> Entity và ngược lại sử dụng 2 cách : dùng thư viện và sử dụng java reflection
+    Dùng thư viện: ModelMapper, Mapstruct(hay dùng), Dozer
+        ✅ Ưu điểm:
+        Code ngắn gọn, nhanh.
+        Dễ bảo trì, giảm lặp code.
+        MapStruct còn hỗ trợ compile-time check (an toàn hơn runtime).
+        ❌ Nhược điểm:
+        Thêm dependency ngoài.
+        Có thể khó debug khi mapping phức tạp.
+    Java reflection(tự code)
+        Ví dụ: import java.lang.reflect.Field;
+
+               public class MapperUtil {
+
+                   // Generic method convert Source -> Target
+                   public static <S, T> T map(S source, Class<T> targetClass) {
+                       try {
+                           T target = targetClass.getDeclaredConstructor().newInstance();
+
+                           for (Field sourceField : source.getClass().getDeclaredFields()) {
+                               sourceField.setAccessible(true);
+
+                               try {
+                                   Field targetField = targetClass.getDeclaredField(sourceField.getName());
+                                   targetField.setAccessible(true);
+
+                                   if (targetField.getType().isAssignableFrom(sourceField.getType())) {
+                                       targetField.set(target, sourceField.get(source));
+                                   }
+                               } catch (NoSuchFieldException ignored) {
+                               }
+                           }
+
+                           return target;
+                       } catch (Exception e) {
+                           throw new RuntimeException("Mapping error", e);
+                       }
+                   }
+               }
+        Sử dụng:
+            UserDTO dto = new UserDTO();
+            dto.setName("Alice");
+            dto.setEmail("alice@example.com");
+
+            // DTO -> Entity
+            User user = MapperUtil.map(dto, User.class);
+
+            // Entity -> DTO
+            UserDTO dto2 = MapperUtil.map(user, UserDTO.class);
+
+        ✅ Ưu điểm:
+        Không cần thư viện ngoài.
+        Tùy biến thoải mái.
+        ❌ Nhược điểm:
+        Hiệu năng thấp hơn (reflection chậm).
+        Nhiều boilerplate code.(code lặp lại, mang tính khuôn mẫu,
+                                gần như bắt buộc phải viết để chạy đc nhưng ko chứa logic nghiệp vụ)
+        Khó maintain nếu object phức tạp, có nested object.
+
+6. Native query
+    - Là câu lệnh SQL thuần túy (native SQL) được viết trực tiếp trong JPA/Hibernate thay vì dùng
+        JPQL hoặc Criteria API
+        Nó chạy thẳng trên SQL, ko qua tầng trừu tượng nhiều.
+    - Khi dùng:
+        Khi cần tối ưu hiệu năng với SQL đặc thù DB (JOIN phức tạp, window function, CTE…).
+        Khi JPQL không hỗ trợ cú pháp hoặc hàm của DB cụ thể (MySQL, PostgreSQL…).
+        Khi muốn tận dụng stored procedure, function, trigger sẵn có.
+    - Ví dụ
+        a. @Query trong JPA
+            public interface UserRepository extends JpaRepository<User, Long> {
+
+                // Native SQL
+                @Query(value = "SELECT * FROM users u WHERE u.email = :email", nativeQuery = true)
+                User findByEmailNative(@Param("email") String email);
+            }
+            nativeQuery = true → báo cho Spring JPA biết đây là SQL thuần, không phải JPQL.
+            :email là parameter binding (an toàn, tránh SQL injection).
+        b. Dùng EntityManager
+            Query query = entityManager.createNativeQuery(
+                "SELECT * FROM users WHERE status = ?",
+                User.class // mapping kết quả về entity User
+            );
+            query.setParameter(1, "ACTIVE");
+            List<User> users = query.getResultList();
+    - Ưu nhược
+        ✅ Ưu điểm:
+        Chủ động viết SQL tối ưu, tận dụng được toàn bộ sức mạnh của DB.
+        Giải quyết được các query phức tạp mà JPQL không support.
+        ❌ Nhược điểm:
+        Mất tính di động (khó đổi DB, vì SQL phụ thuộc vendor) (như MySQL cú pháp khác Oracle, SQLServer).
+        Khó maintain hơn (nhiều query hard-code).(query ko có parameter, mà tìm thẳng như findAdmin())
+        Bỏ qua một số lợi ích ORM (mapping tự động, abstraction).
+
+7. Specification and Paging
+  a. - Specification là cách viết query tự động, có điều kiện linh hoạt bằng Java code, thay vì viết SQL hoặc JPQL cứng.
+        Dựa trên JPA Criteria API nhưng Spring Data JPA làm gọn hơn.
+        Dùng nhiều trong các màn hình search/filter nâng cao (nhiều điều kiện, optional).
+    - Ví dụ: Tìm User theo tên và trạng thái
+        public class UserSpecification {
+            public static Specification<User> hasName(String name) {
+                return (root, query, builder) ->
+                        name == null ? null : builder.equal(root.get("name"), name);
+            }
+
+            public static Specification<User> hasStatus(String status) {
+                return (root, query, builder) ->
+                        status == null ? null : builder.equal(root.get("status"), status);
+            }
+        }
+        🔹 Sử dụng trong Repository
+         public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+         }
+        🔹 Gọi query
+        List<User> users = userRepository.findAll(
+            Specification.where(UserSpecification.hasName("Alice"))
+                         .and(UserSpecification.hasStatus("ACTIVE"))
+        );
+  b. Paging
+    👉 Spring Data JPA hỗ trợ phân trang bằng Pageable.
+    🔹 Ví dụ trong repository
+        public interface UserRepository extends JpaRepository<User, Long> {
+            Page<User> findByStatus(String status, Pageable pageable);
+        }
+    🔹 Gọi query với phân trang
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
+        Page<User> page = userRepository.findByStatus("ACTIVE", pageable);
+
+        List<User> users = page.getContent();    // dữ liệu trang hiện tại
+        int totalPages = page.getTotalPages();   // tổng số trang
+        long totalElements = page.getTotalElements(); // tổng số record
+      Ở đây:
+        PageRequest.of(page, size, sort) → chỉ định trang số mấy, bao nhiêu phần tử, sắp xếp thế nào.
+        Page<T> chứa dữ liệu + meta info (số trang, tổng record, v.v.).
+  c. Kết hợp Specification và Paging
+    Page<User> result = userRepository.findAll(
+        Specification.where(UserSpecification.hasName("Alice"))
+                     .and(UserSpecification.hasStatus("ACTIVE")),
+        PageRequest.of(0, 5, Sort.by("id").descending())
+    );
+    -> Trả về danh sách User thỏa mãn điều kiện và được phân trang, sắp xếp
+
+8. Lấy dữ liệu khi JOIN nhiều bảng sử dụng JPA (mỗi bảng lấy 1 tới 2 trường thông tin)
+    Có 3 cách phổ biến:
+    a. JPQL với DTO Projection: Viết query và map trực tiếp sang 1 DTO
+        @Entity                         | public class UserDepartmentDTO {
+        public class User {             |     private String userName;
+            @Id Long id;                |     private String email;
+            String name;                |     private String deptName;
+            String email;               |
+                                        |     public UserDepartmentDTO(String userName,
+            @ManyToOne                  |             String email,
+            private Department dept;    |             String deptName) {
+        }                               |         this.userName = userName;
+                                        |         this.email = email;
+        @Entity                         |         this.deptName = deptName;
+        public class Department {       |     }
+            @Id Long id;                | }
+            String name;
+            String location;
+        }
+        🔹 Query
+        @Query("SELECT new com.example.dto.UserDepartmentDTO(u.name, u.email, d.name) " +
+               "FROM User u JOIN u.department d")
+        List<UserDepartmentDTO> fetchUserWithDepartment();
+    b. Native query + Projection (interface)
+        Dùng nativeQuery = true và mapping vào interface projection.
+        🔹 Interface projection
+            public interface UserDepartmentProjection {
+                String getUserName();
+                String getEmail();
+                String getDeptName();
+            }
+        🔹 Query
+            @Query(value = "SELECT u.name AS userName, u.email AS email, d.name AS deptName " +
+                           "FROM users u JOIN department d ON u.department_id = d.id",
+                   nativeQuery = true)
+            List<UserDepartmentProjection> fetchUserWithDepartment();
+    c. EntityGraph (nếu cần join lấy thêm entity)
+        Nếu muốn join và load thêm entity con, có thể dùng @EntityGraph, nhưng thường chỉ
+            khi cần entity đầy đủ, không tối ưu bằng DTO projection khi chỉ cần vài field.
+

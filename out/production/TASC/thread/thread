@@ -89,8 +89,15 @@ Thread Pool
         Thay vì tạo thread mới liên tục → tốn tài nguyên, chậm, có thể gây OutOfMemoryError.
         Thread pool tái sử dụng các thread đã tạo sẵn để chạy các task khác nhau.
         Khi task kết thúc → thread không chết mà trở lại pool, sẵn sàng chạy task tiếp theo.
-    2️⃣ Lợi ích
+    Lợi ích
     Tiết kiệm tài nguyên: không phải tạo và hủy thread liên tục.
         Quản lý số thread: giới hạn số lượng thread tối đa, tránh quá tải CPU.
         Quản lý task: các task được xếp hàng (queue), thread pool xử lý tuần tự hoặc song song.
         Tái sử dụng logic thread: thread không chết sau khi task xong, có thể chạy task khác.
+
+    | Tiêu chí                | Tạo thread riêng lẻ      | Thread pool                          |
+    | ----------------------- | ------------------------ | ------------------------------------ |
+    | Tài nguyên              | Tốn (tạo mới + hủy)      | Tiết kiệm (tái sử dụng thread)       |
+    | Quản lý số lượng thread | Khó kiểm soát            | Dễ dàng giới hạn tối đa              |
+    | Hiệu năng               | Thấp nếu nhiều thread    | Cao hơn, ổn định hơn                 |
+    | Phù hợp với             | Task đơn giản, ít thread | Task nhiều, lặp lại, cần concurrency |
