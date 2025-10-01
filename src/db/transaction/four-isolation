@@ -1,0 +1,202 @@
+Trong SQL, transaction (giao dịch) là một tập hợp các câu lệnh SQL được thực hiện như một đơn vị công việc duy nhất.
+
+👉 Đặc điểm chính:
+
+Hoặc tất cả các câu lệnh trong transaction thành công và được lưu (COMMIT).
+
+Hoặc nếu có lỗi xảy ra thì toàn bộ sẽ bị hủy (ROLLBACK), trả dữ liệu về trạng thái ban đầu.
+
+🔹 Tính chất của Transaction trong SQL (ACID):
+
+Atomicity (Nguyên tử): tất cả thao tác trong transaction thực hiện hoàn toàn hoặc không thực hiện gì.
+
+Consistency (Nhất quán): sau transaction, dữ liệu luôn hợp lệ theo các ràng buộc (constraints, triggers...).
+
+Isolation (Cô lập): các transaction đồng thời không ảnh hưởng lẫn nhau.
+
+Durability (Bền vững): khi COMMIT, thay đổi được lưu vĩnh viễn, kể cả khi hệ thống gặp sự cố.
+
+4 cơ chế cách ly( isolation) trong transaction
+    Note: SHOW VARIABLES LIKE '%isolation%';     #check kieu isolation nào, default là REPEATABLE
+    1. Read Uncommitted
+        Mở 2 session cùng truy cập đến db.
+            User A :
+                (Ví dụ ban đầu id = 1 , username = 'keobien')
+                SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                START TRANSACTION ;
+                # --1 UPDATE USER
+                UPDATE users set username = 'linh nef' where id = 1;
+
+                #Chưa commit, rollback
+
+            User B :
+                SET SESSION TRANSACTJION ISOLATION LEVEL READ UNCOMMITED
+                SELECT * FROM users where id = 1;
+
+        Nếu chạy transaction ở UserA mặc dù chưa commit hay rollback, khi đọc ở UserB thì vẫn hiện ra username là linh nef
+
+        -> Đọc bẩn dữ liệu, truy vấn hiệu suất rất nhanh nhưng ko đảm bảo tính đúng đắn của dữ liệu
+
+    2. READ COMMITTED
+    Transaction sẽ không đọc được dữ liệu chưa commit của transaction khác (không có dirty read).
+    Nhưng không phải chờ transaction khác commit, mà chỉ bỏ qua dữ liệu chưa commit.
+    Khi lấy thì sẽ lấy dữ liệu trước khi bắt đầu transaction, hiệu suất thấp.
+                        SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+    3.REPEATABLE READ
+        Đọc lại dữ liệu
+            (Ví dụ ban đầu id = 1 , username = 'keobien')
+            UserA:
+               SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ
+               START TRANSACTION;
+                UPDATE user SET username = 'linhnef' where id = 1;
+                COMMIT;
+            UserB:
+                SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ
+                SELECT * FROM user WHERE id = 1;  // ban đầu khi A chưa chạy trânsaction thì trả về 'keobien'
+                SELECT * FROM user WHERE id = 1;  // sau khi A chạy trânsaction thì vẫn trả về 'keobien'
+                SELECT * FROM user WHERE id = 1;  // sau khi A commit thì vẫn trả về 'keobien'
+                COMMIT;
+                SELECT * FROM user WHERE id = 1;  // sau khi B commit thì mới trả về 'linhef' đã đc cập nhật
+
+    4. SERIALIZABLE
+        Giống như đồng bộ, sẽ ko gặp vấn đề gì về xung đột
+        Hiệu suất chậm nhất
+        UserA:
+            SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+            START TRANSACTION;
+                UPDATE user SET username = 'linhnef' where id = 1;
+
+        Nếu A chưa commit thì ví dụ chạy UserB
+                    SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+                    START TRANSACTION;
+                        UPDATE user SET username = 'linhnef' where id = 1;
+        --> Xoay tròn ko update được
+        và ngay khi A chạy COMMIT; thì giải phóng tài nguyên, B đang xoay tròn ngay lập tức đc chạy lệnh update hoặc select
+
+Trong cac du an thuc te,
+    REPEATABLE_READ → cân bằng hiệu năng và an toàn (dùng nhiều trong thực tế, nhất là MySQL).
+    SERIALIZABLE → an toàn tuyệt đối, nhưng chỉ dùng khi hệ thống ít giao dịch hoặc rất critical (ngân hàng, chứng khoán).
+    Ngoài isolation, thường kết hợp locking (pessimistic/ optimistic) để kiểm soát tồn kho chuẩn hơn.
+
+
+| Isolation Level  | Dirty Read | Non-Repeatable Read | Phantom Read |
+| ---------------- | ---------- | ------------------- | ------------ |
+| READ UNCOMMITTED | ✅ Có       | ✅ Có                | ✅ Có         |
+| READ COMMITTED   | ❌ Không    | ✅ Có                | ✅ Có         |
+| REPEATABLE READ  | ❌ Không    | ❌ Không             | ✅ Có         |
+| SERIALIZABLE     | ❌ Không    | ❌ Không             | ❌ Không      |
+Có đọc dữ liệu chưa commit (Dirty Read)
+Giá trị đọc có thay đổi trong transaction (Non-Repeatable Read)
+Thấy row mới thêm trong transaction khác (Phantom Read)
+
+
+
+@Transactional in Java / Spring Boot
+
+@Transactional is Spring’s way of managing database transactions declaratively. You annotate a method (or class), and Spring ensures all database operations inside that scope run in a single transaction.
+
+1. Where to put it
+
+Method-level: most common
+
+@Transactional
+public void placeOrder(Long orderId, Long productId) { ... }
+
+
+Class-level: all public methods inherit the transaction
+
+@Transactional
+@Service
+public class OrderService { ... }
+
+
+Method-level annotation overrides class-level if both are present.
+
+2. What it does
+
+Begins a transaction at the start of the method
+
+Commits the transaction if the method completes normally
+
+Rolls back the transaction if an exception occurs
+
+3. Rollback behavior
+Exception type	Default behavior
+RuntimeException / Error	Rolls back automatically
+Checked exceptions (e.g., IOException)	Does NOT roll back by default
+
+You can override:
+
+@Transactional(rollbackFor = Exception.class)
+public void myMethod() { ... }
+
+4. Propagation
+
+Defines how transactions behave when a transactional method calls another transactional method.
+
+Propagation	Meaning
+REQUIRED (default)	Join existing transaction or start new
+REQUIRES_NEW	Always start a new transaction, suspend existing
+SUPPORTS	Join existing if present, otherwise non-transactional
+MANDATORY	Must join existing, throw exception if none
+NOT_SUPPORTED	Run outside of transaction, suspend existing
+NEVER	Must run outside, throw exception if transaction exists
+NESTED	Start a nested transaction (uses savepoints)
+5. Isolation Levels
+
+Controls visibility of changes between concurrent transactions.
+
+Isolation	Meaning
+DEFAULT	Use DB default
+READ_UNCOMMITTED	Dirty reads allowed
+READ_COMMITTED	No dirty reads, but non-repeatable reads possible
+REPEATABLE_READ	Prevent non-repeatable reads (default in MySQL)
+SERIALIZABLE	Full isolation, prevents phantom reads, slow
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+
+6. Timeout
+Limits how long a transaction can run before rollback:
+@Transactional(timeout = 5) // 5 seconds
+
+7. Read-only transactions
+Optimizes performance for queries that don’t modify data:
+@Transactional(readOnly = true)
+public List<Order> findAllOrders() { ... }
+
+8. Combining @Transactional with JPA / JDBC / Native Queries
+JPA repository method:
+@Transactional
+public void saveOrder(Order order) {
+    orderRepo.save(order);
+}
+Native query:
+@Modifying
+@Transactional
+@Query(value = "UPDATE products SET stock = stock - 1 WHERE id = ?1", nativeQuery = true)
+void decreaseStock(Long productId);
+
+
+JdbcTemplate:
+
+@Transactional
+public void updateStock(Long productId) {
+    jdbcTemplate.update("UPDATE products SET stock = stock - 1 WHERE id = ?", productId);
+}
+
+9. Common pitfalls
+    @Transactional doesn’t work on private methods → Spring uses proxies for public methods.
+    Calling a transactional method from another method in the same class → won’t start a new transaction (self-invocation problem).
+    Mixing manual SQL START TRANSACTION with @Transactional → usually unnecessary and can cause conflicts.
+    Always handle checked exceptions if you want rollback: use rollbackFor.
+10. Best practices
+    Keep transactions short → don’t put heavy logic inside.
+    Use service layer for transactions, not controller layer.
+    Prefer method-level @Transactional unless most methods share same transaction behavior.
+    Combine with isolation & propagation only when needed for concurrency control.
+
+✅ Summary
+    @Transactional = automatic transaction management
+    Handles commit, rollback, isolation, propagation, timeout, read-only
+    Works with JPA, native queries, JdbcTemplate
+    Must be public method and called from outside the bean to work properly
+

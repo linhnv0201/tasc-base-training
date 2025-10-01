@@ -8,7 +8,7 @@
 //import java.text.SimpleDateFormat;
 //import java.util.Date;
 //
-//public class Test {
+//public class test.Test {
 //
 //  // 1. Đọc file (có thể ném FileNotFoundException)
 //  static void readFile(String fileName) throws FileNotFoundException   {

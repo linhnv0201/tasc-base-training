@@ -1,0 +1,23 @@
+Cách xử lý trên FE
+1. Show trạng thái chờ xác nhận
+    Sau khi user bấm "Thanh toán", frontend redirect sang một trang waiting-payment.
+    Trang này gọi API GET /payment/status?orderId=xxx.
+    Nếu status = PENDING → hiện loading “Đang xác nhận giao dịch với VNPay…”.
+2. Polling API để check kết quả
+    Dùng setInterval (VD: 5s/lần) → call BE check trạng thái Payment trong DB.
+    Nếu backend chưa có kết quả → trả về PENDING.
+    Nếu backend nhận được callback hoặc tự query VNPay → trả SUCCESS hoặc FAILED.
+3. Timeout + fallback message
+    Nếu sau 30s–1p vẫn PENDING → show message:
+    “Giao dịch đang được xác nhận. Vui lòng kiểm tra lại ở trang Đơn hàng hoặc liên hệ hỗ trợ nếu quá 15 phút mà chưa thấy cập nhật.”
+    Cho phép user quay về trang Order History để xem trạng thái.
+
+Trải nghiệm người dùng
+    👉 Không để user load mãi, mà cho họ cảm giác “hệ thống đang xử lý”:
+    5–10s: Hiện loading.
+    10–30s: “Đang chờ VNPay xác nhận giao dịch”.
+    30s: “Vui lòng kiểm tra lại trong mục đơn hàng. Nếu tiền đã bị trừ nhưng chưa có đơn, liên hệ hotline”.
+📌 Kết luận:
+    Không cố gắng show kết quả ngay trên callback (vì có thể fail).
+    Thay vào đó, dùng polling BE + timeout fallback để báo user:
+    “Hệ thống đang xác nhận, bạn có thể quay lại trang đơn hàng để kiểm tra.”

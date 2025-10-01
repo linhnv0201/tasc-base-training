@@ -1,0 +1,146 @@
+1. Định nghĩa:
+ Hệ thống microservice là một kiến trúc phần mềm trong đó ứng dụng được chia nhỏ thành nhiều dịch vụ độc lập (service),
+    mỗi dịch vụ đảm nhiệm một chức năng cụ thể, chạy riêng biệt và giao tiếp với nhau qua các giao thức nhẹ (thường
+    là HTTP/REST, gRPC, message queue…).
+2. Đặc điểm
+    Đặc điểm chính:
+        Mỗi microservice là một ứng dụng nhỏ có cơ sở dữ liệu và logic riêng.
+        Các service có thể được triển khai độc lập, scale độc lập.
+        Thường được đóng gói trong container (Docker) và chạy trên hệ thống quản lý như Kubernetes.
+        Giao tiếp qua API hoặc message broker.
+        Tách biệt rõ ràng giữa các team phát triển, mỗi team có thể phụ trách một service.
+    Ví dụ trong hệ thống thương mại điện tử:
+        Service quản lý user
+        Service giỏ hàng
+        Service thanh toán
+        Service kho hàng
+        Service gợi ý sản phẩm
+    Ưu điểm:
+        ✅ Triển khai & phát triển độc lập
+            Có thể cập nhật, triển khai 1 service mà không ảnh hưởng toàn bộ hệ thống.
+        ✅ Dễ mở rộng (scalability)
+            Có thể scale riêng service nào có tải nặng (vd: payment, search) thay vì scale cả hệ thống.
+        ✅ Tối ưu công nghệ
+            Mỗi service có thể dùng công nghệ/ngôn ngữ/framework khác nhau, miễn là giao tiếp qua API chuẩn.
+        ✅ Tăng tốc độ phát triển
+            Các team làm song song trên các service khác nhau.
+        ✅ Độ bền và chịu lỗi
+            Nếu một service bị down, hệ thống có thể vẫn hoạt động ở mức nào đó (degrade gracefully).
+    Nhược điểm:
+        ❌ Độ phức tạp cao
+            Quản lý nhiều service, nhiều database, nhiều môi trường triển khai → phức tạp hơn monolith.
+        ❌ Khó debug và test
+            Một request có thể đi qua nhiều service → khó trace lỗi nếu không có logging/monitoring chuẩn.
+        ❌ Chi phí hạ tầng
+            Cần nhiều tài nguyên hơn (mỗi service chạy container, database riêng).
+        ❌ Giao tiếp qua mạng
+            Có độ trễ (latency), khả năng thất bại khi call API giữa các service.
+        ❌ Yêu cầu DevOps mạnh
+            Cần CI/CD, Docker, Kubernetes, monitoring (Prometheus, Grafana), log aggregator (ELK, EFK).
+
+3. Các thành phần và chức năng của nó trong microservice
+    a. Thành phần chính trong hệ thống microservice
+    🔹 Business Services (Microservices)
+        Mỗi service xử lý một chức năng nghiệp vụ riêng.
+        Ví dụ trong hệ thống thương mại điện tử: User Service, Product Service, Order Service, Inventory Service, Payment Service
+        👉 Đặc trưng: independent deploy, own DB, communicate qua API/message.
+    b. Thành phần hạ tầng và chức năng
+    🔹 API Gateway
+        Cửa ngõ duy nhất để client gọi vào hệ thống
+        Chức năng:  routing (chuyển request đến đúng service)
+                    Load balancing
+                    Authentication/Authorization (check token, role)
+                    Rate limiting/ logging (hạn chế request/s)
+        Ví dụ: Kong, Nginx, Spring Cloud Gateway.
+    🔹 Service Discovery
+        Quản lý địa chỉ các service (vì service có thể scale, IP thay đổi liên tục).
+        Cho phép các service gọi nhau mà không cần biết IP cụ thể.
+        Ví dụ: Eureka (Spring Cloud Netflix), Consul, Kubernetes DNS.
+    🔹 Database per service
+        Mỗi service có 1 db riêng (nguyên tắc độc lập dữ liệu)
+        Có thể dùng db khác nhau tùy nhu cầu (MySQL, MongoDB, Redis, ...)
+    🔹 Message Broker (Asynchronous Communication)
+        Dùng cho giao tiếp bất đồng bộ, event-driven
+        Ví dụ: Khi OrderService tạo đơn hàng thành công -> gửi event đến Inventory Service để trừ kho
+        Công cụ: Kafka, RabbitMQ, ActiveMQ
+    🔹 Configuration Server
+        Quản lí config tập trung cho các service (tránh hardcode)
+        Ví dụ: Spring Cloud Config, Consul KV Store
+    🔹 Monitoring & Logging
+        Thu thập log, metric để debug và giám sát hệ thống.
+        Công cụ:
+            Logging: ELK (Elasticsearch – Logstash – Kibana), EFK (Fluentd)
+            Monitoring: Prometheus + Grafana
+    🔹 Security:
+        Authen, author (jwt, OAuth2)
+        Thường kết hợp với API Getway
+    🔹 CI/CD Pipeline
+        Tự động build, test, deploy từng service độc lập
+        Công cụ: Jenkins, Gitlab CI, Github Action, ArgoCD.
+    🔹 Container Orchestration
+        Quản lý, scale, self-healing, các service containerized
+        Công cụ: Kubernetes, Docker Swarm
+
+         [ Client / Mobile App ]
+                      |
+                [ API Gateway ]
+                      |
+            -------------------------
+           |           |             |
+        [User]     [Order]      [Product]   ... (Microservices)
+           |           |             |
+           |        [Message Broker] |
+           |           |             |
+        [DB User] [DB Order]   [DB Product] (Database per service)
+
+           [ Service Discovery ]
+           [ Config Server ]
+           [ Monitoring & Logging ]
+           [ Security Service (Auth) ]
+           [ CI/CD + Kubernetes ]
+
+4. Saga Pattern
+    Saga Pattern là một cách quản lý transaction trong hệ thống phân tán bằng chuỗi các transaction cục bộ (local transaction).
+        Mỗi service thực hiện transaction riêng trên DB của nó.
+        Nếu một bước trong saga thất bại, sẽ thực hiện compensating transaction để rollback các bước trước đó.
+        Mục tiêu: đảm bảo eventual consistency thay vì atomicity toàn hệ thống (như 2PC).
+    Lợi ích:
+        Loose coupling:
+            Các service không phải thực hiện 2PC hay block nhau.
+            Dễ mở rộng và bảo trì trong microservices.
+        Eventual consistency
+            Hệ thống vẫn consistent theo thời gian, ngay cả khi một service fail tạm thời.
+        Không cần transaction phân tán phức tạp
+            Tránh overhead và blocking của 2PC.
+        Tăng khả năng chịu lỗi (resilience)
+            Compensating transaction rollback những bước đã hoàn thành nếu xảy ra lỗi.
+    Tại sao dùng Saga?
+        Trong microservices, mỗi service có DB riêng → khó dùng transaction toàn cục (2PC).
+        Saga cho phép:
+            Xử lý workflow phân tán một cách an toàn.
+            Quản lý order → payment → inventory → delivery mà không block toàn bộ hệ thống.
+            Giảm tight coupling giữa service và tăng fault tolerance.
+    Ví dụ ngắn
+        Order Service tạo order → CREATED
+        Payment Service trừ tiền
+        Inventory Service trừ hàng
+        Nếu Inventory fail → Payment Service thực hiện compensating transaction hoàn tiền → Order rollback
+
+5. Thực hành với dự án BookStore
+    Với dự án đơn giản, ta tách ra 5 service:
+        - Auth & User Service
+            Quản lý users, roles, đăng nhập/đăng ký.
+        - Catalog Service
+            products, categories, product_categories
+            Quản lý sản phẩm, tồn kho, giá, danh mục.
+        - Order Service (bao gồm giỏ hàng)
+            carts, cart_items, orders, order_items
+            Giỏ hàng (tạm thời) + đơn hàng (chính thức).
+        - Payment Service
+            customer_payments
+            Quản lý thanh toán, trạng thái thanh toán.
+        - Supplier & Purchase Service
+            suppliers, purchase_orders, purchase_order_items
+            Quản lý nhập kho và nhà cung cấp.
+
+

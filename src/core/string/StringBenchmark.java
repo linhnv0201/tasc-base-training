@@ -4,7 +4,7 @@ public class StringBenchmark {
     public static void main(String[] args) {
         int N = 100_000; // số lần nối chuỗi
 
-        // Test String (immutable)
+        // test.Test String (immutable)
         long start = System.currentTimeMillis();
         String str = "";
         for (int i = 0; i < N; i++) {
@@ -13,7 +13,7 @@ public class StringBenchmark {
         long end = System.currentTimeMillis();
         System.out.println("String time: " + (end - start) + " ms");
 
-        // Test StringBuilder (mutable)
+        // test.Test StringBuilder (mutable)
         start = System.currentTimeMillis();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < N; i++) {
@@ -22,7 +22,7 @@ public class StringBenchmark {
         end = System.currentTimeMillis();
         System.out.println("StringBuilder time: " + (end - start) + " ms");
 
-        // Test StringBuffer (mutable, synchronized)
+        // test.Test StringBuffer (mutable, synchronized)
         start = System.currentTimeMillis();
         StringBuffer sbf = new StringBuffer();
         for (int i = 0; i < N; i++) {

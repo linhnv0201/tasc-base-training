@@ -1,0 +1,94 @@
+1. Docker là gì?
+    Docker là một nền tảng để đóng gói (package) và chạy ứng dụng trong các container.
+    Container giống như “hộp” chứa app + toàn bộ môi trường cần thiết (lib, runtime, config) → chạy ở đâu cũng giống
+        nhau (local, server, cloud).
+2. Các thành phần trong Docker
+    1. Image
+        Định nghĩa: Một gói chứa toàn bộ mã nguồn, thư viện, runtime và dependencies cần có để chạy app.
+        Tính chất:  Read-only
+                    Có thể build từ Dockerfile hoặc pull về từ DockerHub
+        Ví dụ:  mysql:8.0.40 -> image MySQL phiên bản 8.0.40
+                openjdk:17 -> image chứa JDK 17.
+        Thực tế: Bạn có thể build image cho app của mình: docker build -t myapp:1.0
+    2. Container
+        Định nghĩa: 1 bản chạy (instance) của image
+        Tính chất:  Có thể start/stop/delete
+                    Tách biệt với hệ điều hành host nhưng dùng chung kernel
+        Ví dụ: Tạo container từ image MySQL:
+                docker run -d --name mydb -e MYSQL_ROOT_PASSWORD=123456 mysql:8.0
+        Thực tế: Một image có thể chạy nhiều container. VD: 3 container MySQL cho 3 database khác nhau.
+    3. Dockerfile
+        Định nghĩa: 1 file chứa tập hợp lệnh để Docker build ra image
+        Ví dụ trong Spring boot app: dockerfile
+                                        FROM openjdk:17
+                                        WORKDIR /app
+                                        COPY target/app.jar app.jar
+                                        CMD ["java", "-jar", "app.jar"]
+        Thực tế khi chạy: docker build -t myapp. , Docker đọc dockerfile và tạo ra image myapp
+    4. Docker Hub
+        Định nghĩa: Dịch vụ registry mặc định của Docker, giống Github nhưng cho image.
+        Ví dụ:  docker pull redis:7 tải Redis từ DockerHub
+                docker push myusername/myapp:1.0 → đẩy image lên Docker Hub cá nhân.
+        Thực tế: Đây là nơi bạn tìm image phổ biến (MySQL, Postgres, Nginx, Node.js…).
+    5. Volume
+        Định nghĩa: Cơ chế lưu dữ liệu ngoài container. Vì container bị xóa thì dữ liệu trong đó cũng mất
+        Ví dụ:  docker run -d \
+                  --name mydb \
+                  -e MYSQL_ROOT_PASSWORD=123456 \
+                  -v mydata:/var/lib/mysql \
+                  mysql:8.0
+            -> Volume 'mydata' giữ dữ liệu MySQL, không mất khi container restart
+        Thực tế: dùng volume cho DB, logs, uploads
+    6. Network
+        Định nghĩa: Cách các container giao tiếp với nhau
+        Ví dụ:  tạo network riêng:
+                    docker network create mynet
+                chạy MySQL và app trên cùng network:
+                    docker run -d --name mydb --network mynet mysql:8.0
+                    docker run -d --name myapp --network mynet myapp:1.0
+                -> lúc này app có thể connect mydb:3306 thay vì IP
+    7. docker-compose
+        Định nghĩa: Công cụ để định nghĩa và quản lý nhiều container trong 1 file YAML.
+        Ví dụ (app + DB)
+                version: "3.8"
+                services:
+                  db:
+                    image: postgres:15
+                    environment:
+                      POSTGRES_PASSWORD: 123456
+                    volumes:
+                      - dbdata:/var/lib/postgresql/data
+
+                  app:
+                    build: .
+                    ports:
+                      - "8080:8080"
+                    depends_on:
+                      - db
+
+                volumes:
+                  dbdata:
+        → Chỉ cần chạy: docker-compose up -d
+    8. Registry
+        Định nghĩa: Kho lưu trữ image (giống Git cho code).
+        Các loại:
+            Public: Docker Hub.
+            Private: AWS ECR, GitHub Packages, GitLab Registry, Harbor.
+        Ví dụ: Push lên AWS CER: docker tag myapp:1.0 1234567890.dkr.ecr.us-east-1.amazonaws.com/myapp:1.0
+                                 docker push 1234567890.dkr.ecr.us-east-1.amazonaws.com/myapp:1.0
+    9. Tag
+        Định nghĩa: Nhãn để phân biệt phiên bản image.
+        Ví dụ:
+            nginx:1.25 → phiên bản 1.25.
+            nginx:latest → mặc định, nếu không ghi version.
+        Thực tế: Bạn nên gắn tag theo version app (VD: myapp:1.0, myapp:1.1) để tránh lẫn lộn.
+
+Tóm lại:
+    Image (khuôn mẫu) → tạo ra Container (bản chạy).
+    Dockerfile = công thức tạo image.
+    Volume = nơi lưu dữ liệu lâu dài.
+    Network = mạng cho container giao tiếp.
+    docker-compose = quản lý nhiều container.
+    Registry = kho chứa image.
+    Tag = version của image.
+    Docker Hub = registry phổ biến nhất.

@@ -8,7 +8,7 @@ public class ListPerformanceTest {
     public static void main(String[] args) {
         int n = 1_000_00;
 
-        // ================== Test ArrayList ==================
+        // ================== test.Test ArrayList ==================
         List<Integer> arrayList = new ArrayList<>();
 
         // Thêm cuối
@@ -36,7 +36,7 @@ public class ListPerformanceTest {
         System.out.println("ArrayList - truy cập giữa (1000 lần): " + (end - start)/1_000_000.0 + " ms");
 
 
-        // ================== Test LinkedList ==================
+        // ================== test.Test LinkedList ==================
         List<Integer> linkedList = new LinkedList<>();
 
         // Thêm cuối

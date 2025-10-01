@@ -101,3 +101,4 @@ Thread Pool
     | Quản lý số lượng thread | Khó kiểm soát            | Dễ dàng giới hạn tối đa              |
     | Hiệu năng               | Thấp nếu nhiều thread    | Cao hơn, ổn định hơn                 |
     | Phù hợp với             | Task đơn giản, ít thread | Task nhiều, lặp lại, cần concurrency |
+https://viblo.asia/p/thread-pools-trong-java-ZK1ov1DxG5b9

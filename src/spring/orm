@@ -180,7 +180,7 @@ public class Student {                                                  | public
                 @ManyToOne
                 Department department;
             }
-            Test code
+            test.Test code
                 Department dept = new Department();
                 dept.setName("IT");
 
