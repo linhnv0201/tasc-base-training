@@ -144,6 +144,7 @@ Note: có trong package được scan thì đều đc khởi tạo trong contain
         - Custom utility method: This could be any custom method you have defined in your bean.
         - Custom destroy() method: If the bean implements DisposableBean or has a custom destruction method specified via @PreDestroy
                                     or destroy-method, it is called when the container is shutting down.
+        Các bước chuyên sâu như BeanPostProcessor, proxy, AOP... do cơ chế nội bộ Spring xử lý.”
     Cách triển khai vòng đời (Life Cycle) của Bean trong Spring
     https://www.geeksforgeeks.org/java/bean-life-cycle-in-java-spring/
     https://www.youtube.com/watch?v=01X3wvN1hvY

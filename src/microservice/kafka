@@ -1,0 +1,148 @@
+1. Kafka là gì?
+    Apache Kafka là một hệ thống message broker (trung gian truyền tin nhắn) mã nguồn mở do LinkedIn phát triển và nay
+        thuộc về Apache Foundation.
+    Nó được thiết kế để truyền tải, lưu trữ và xử lý dữ liệu theo dòng (streaming data) với hiệu năng cực cao, độ tin cậy,
+        và khả năng mở rộng rất tốt.
+    Kafka hoạt động theo mô hình publish–subscribe:
+        Producer: Gửi message (dữ liệu) đến một topic trong Kafka.
+        Consumer: Lắng nghe (subscribe) topic và nhận message.
+        Kafka lưu message trong ổ đĩa một thời gian nhất định → cho phép reprocess hoặc replay message.
+2. Tác dụng của Kafka trong ứng dụng Microservice with Java Backend?
+    Trong 1 hệ thống microservice, các service cần giao tiếp với nhau asynchronous.
+    Thay vì service A gọi trực tiếp api của service B(chậm hoặc lỗi khi B down), Kafka đóng vai trò trung gian nhắn tin.
+    Một số vai trò:
+        a. Trao đổi dữ liệu giữa các service
+           ví dụ:  OrderService gửi event "OrderCreated" → Kafka topic "orders".
+                   InventoryService và PaymentService subscribe topic "orders" để xử lý.
+        b. Even sourcing/ CQRS pattern
+            Kafka giữ event log -> dễ dàng xây dựng kiến trúc event-driven
+        c. Stream processing
+            Kết hợp với Kafka Streams hoặc ksqlDB để xử lý luồng dữ liệu real-time (ví dụ: đếm lượt truy cập,
+                phát hiện gian lận…).
+        d. Decoupling (giảm sự phụ thuộc giữa các service)
+            các service ko cần biết sự tồn tại của nhau, chỉ cần biết topic nào để publish/subsribe.
+3. Ưu điểm của Kafka
+    | Ưu điểm                         | Giải thích                                                                    |
+    | ------------------------------- | ----------------------------------------------------------------------------- |
+    | ⚡ **Hiệu năng cao**             | Kafka có thể xử lý hàng triệu message/giây với độ trễ rất thấp.               |
+    | 💾 **Durable & Reliable**       | Message được lưu trên đĩa và có thể nhân bản (replication) giữa nhiều broker. |
+    | 📈 **Scalable**                 | Dễ dàng mở rộng theo chiều ngang (thêm broker, partition).                    |
+    | 🔄 **Replayable**               | Có thể đọc lại dữ liệu cũ nhờ Kafka lưu trữ log theo offset.                  |
+    | 🔌 **Tích hợp tốt với hệ sinh   | Dùng thư viện **Spring Kafka** để gửi/nhận message rất dễ.                    |
+    |    thái Java & Spring Boot**     |
+4. Nhược điểm
+| Nhược điểm                              | Giải thích                                                                                                           |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 🧠 **Độ phức tạp cao**                  | Cần hiểu sâu về topic, partition, offset, consumer group, retention…                                                 |
+| 🛠️ **Khó quản lý/ vận hành**            | Triển khai cluster Kafka (và Zookeeper hoặc KRaft) khá phức tạp, cần monitoring.                                     |
+| ⏱  **Độ trễ không phải bằng 0**         | Dù nhanh, nhưng vẫn có độ trễ → không phù hợp với giao tiếp yêu cầu real-time cứng (ví dụ: thanh toán ngay lập tức). |
+| 🧩 **Không phù hợp cho message nhỏ lẻ** | Kafka tối ưu cho luồng lớn; nếu chỉ vài message nhỏ, RabbitMQ hoặc Redis Pub/Sub đơn giản hơn.                       |
+
+5. So sánh với các công nghệ tương tự
+| Tiêu chí              | **Kafka**                          | **RabbitMQ**                 | **ActiveMQ**         | **Redis Streams / PubSub**    |
+| --------------------- | ---------------------------------- | ---------------------------- | -------------------- | ----------------------------- |
+| **Kiểu hệ thống**     | Log-based streaming platform       | Traditional message broker   | Message broker (JMS) | In-memory message streaming   |
+| **Mô hình**           | Publish-Subscribe                  | Queue-based                  | Queue-based          | Publish-Subscribe             |
+| **Hiệu năng**         | Rất cao (hàng triệu msg/s)         | Tốt (hàng trăm nghìn msg/s)  | Trung bình           | Rất cao (nhưng không durable) |
+| **Lưu trữ message**   | Có (log, durable)                  | Có (queue, optional durable) | Có                   | Tuỳ cấu hình                  |
+| **Replay message**    | Có (offset-based)                  | Không                        | Không                | Có giới hạn                   |
+| **Độ phức tạp**       | Cao                                | Trung bình                   | Trung bình           | Thấp                          |
+| **Use case phổ biến** | Event-driven, streaming, analytics | Task queue, async jobs       | JMS integration      | Cache + lightweight messaging |
+
+6. Khái niệm message, broker, produce, consumer, group, topic, partition.
+    1. Message
+       Là đơn vị dữ liệu được gửi từ một thành phần (Producer) tới một thành phần khác (Consumer) thông qua hệ thống message broker.
+       Có thể là bất kỳ dữ liệu nào: JSON, XML, chuỗi text, binary, v.v.
+       Ví dụ: Một message gửi trong hệ thống đặt hàng có thể là: {
+                                                                   "orderId": "12345",
+                                                                   "userId": "5678",
+                                                                   "amount": 250000,
+                                                                   "status": "CREATED"
+                                                                 }
+       Ý nghĩa: Message = nội dung của “cuộc nói chuyện” giữa các microservice.
+    2. Broker
+       Là thành phần trung gian chịu trách nhiệm nhận, lưu trữ và phân phối message giữa Consumer và Producer
+       Trong Kafka, mỗi broker là 1 "node" trong cluster Kakka
+       Chức năng chính: Quản lý topic và partition.
+                        Ghi dữ liệu message xuống log (ổ đĩa).
+                        Gửi message đến các consumer đúng group.
+                        Đảm bảo durability (dữ liệu không mất).
+       📌 Ví dụ: Kafka cluster có 3 broker:
+           Broker 1: lưu partition 0 của topic “order-events”
+           Broker 2: lưu partition 1
+           Broker 3: lưu partition 2
+    3. Producer
+        Là thành phần hoặc service tạo ra message và gửi (publish) message đó vào một topic trong broker.
+        Đặc điểm:
+            Có thể chọn topic, partition để gửi.
+            Thường gửi message bất đồng bộ.
+            Có thể nhận acknowledgement từ broker (để biết message đã lưu chưa).
+        Ví dụ: OrderService sau khi tạo đơn hàng mới sẽ gửi event:
+            kafkaTemplate.send("order-events", orderEvent);
+    4. Consumer
+        Định nghĩa: Là thành phần hoặc service nhận và xử lý message từ broker.
+                    Consumer subscribes (đăng ký) vào một hoặc nhiều topic.
+        Đặc điểm:
+            Kafka giao message theo offset (vị trí đọc)
+            Có thể commit offset để đánh dấu đã xử lý
+            Có thể đọc lại message cũ (nếu chưa xóa theo retention policy)
+        Ví dụ : InventoryService subscribe topic "order-events" → khi có đơn hàng mới, trừ kho.
+    5. Consumer group
+        Định nghĩa: Là một tập hợp các consumer cùng làm việc với nhau để chia sẻ việc xử lý message từ cùng một topic.
+                    Mỗi partition của topic chỉ được xử lý bởi một consumer trong group tại một thời điểm.
+        Mục tiêu:   tăng xử lý song song
+                    Đảm bảo ko trùng lặp message trong cùng group
+        Ví dụ: Topic order-events có 3 partition (P0, P1, P2)
+               Consumer Group “inventory-group” có 3 consumer (C1, C2, C3) → C1 xử lý P0, C2 xử lý P1, C3 xử lý P2.
+               Nếu thêm C4 → một consumer sẽ “rảnh” vì partition không đủ chia.
+    6. Topic
+        Định nghĩa: Là kênh logic dùng để phân loại và nhóm các message.
+                    Mỗi message phải thuộc về một topic cụ thể.
+                    Có thể hiểu topic như “tên chủ đề” mà Producer gửi vào và Consumer đăng ký lắng nghe.
+        Đặc điểm:   Một topic có thể chia thành nhiều partition để tăng hiệu năng.
+                    Message trong topic được lưu theo thứ tự trong mỗi partition.
+        Ví dụ: 1 hệ thống ecommerce có Topic "order-events"
+                                       Topic "payment-events"
+                                       Topic "shipping-events"
+    7. Partrition
+        Định nghĩa: Là đơn vị vật lý lưu trữ dữ liệu của một topic trong Kafka.
+                    Mỗi topic có thể có 1 hoặc nhiều partition.
+                    Mỗi partition là một log file — nơi message được ghi nối tiếp (append-only).
+        Đặc điểm:   Mỗi message trong partition có offset (chỉ số duy nhất).
+                    Các partition được phân tán trên nhiều broker để scale out.
+                    Kafka đảm bảo thứ tự message trong cùng một partition, nhưng không đảm bảo thứ tự giữa các partition.
+        Ví dụ: Topic "order-events" có 3 partition:
+                    Partition 0 → Broker 1
+                    Partition 1 → Broker 2
+                    Partition 2 → Broker 3
+                Producer có thể gửi message theo key (ví dụ: userId) → để message cùng user luôn vào cùng partition → giữ thứ tự.
+
+Note :
+    | Thành phần       | Vai trò                                                                         |
+    | ---------------- | ------------------------------------------------------------------------------- |
+    | **Apache Kafka** | Là **message broker thực tế** (chạy độc lập) – nơi lưu trữ và phân phối message |
+    | **Spring Kafka** | Là **thư viện Spring** giúp ứng dụng **kết nối và làm việc với Kafka dễ hơn**   |
+
+
+
+Kafka là một hệ thống xử lý luồng dữ liệu phân tán (distributed streaming platform),
+được thiết kế để thu thập, lưu trữ, truyền tải và xử lý dữ liệu theo thời gian thực (real-time) giữa các hệ thống.
+Kafka hoạt động theo mô hình publish–subscribe (pub/sub):
+    Producer (người gửi) gửi message lên topic
+    Consumer (người nhận) đăng ký đọc message từ topic đó
+Điểm mạnh của Kafka là hiệu năng cực cao, độ tin cậy lớn, và khả năng mở rộng theo chiều ngang (thêm broker dễ dàng).
+Kafka thường được dùng cho:
+    Logging, event streaming, tracking hệ thống
+    Truyền dữ liệu giữa microservices
+    Realtime analytics, data pipeline
+Cluster là cụm gồm nhiều broker làm việc cùng nhau để chia sẻ, lưu trữ và xử lý dữ liệu, đảm bảo cân bằng tải và chịu lỗi khi một broker gặp sự cố.
+Broker là một server Kafka (một node trong cluster) có nhiệm vụ lưu trữ các partition và replica của topic. Broker nhận message (event) từ producer và phục vụ message cho consumer.
+Topic là dòng dữ liệu logic (chủ đề) mà các message thuộc cùng loại được gửi vào, ví dụ order_created.
+Mỗi topic được chia thành nhiều partition để xử lý song song và tăng throughput.
+Mỗi partition có thể có nhiều replica (bản sao) trên các broker khác nhau để đảm bảo dữ liệu không bị mất khi broker hoặc leader của partition gặp lỗi.
+Producer là thành phần gửi message (event) lên Kafka, ghi vào một topic cụ thể.
+Kafka sẽ quyết định message đó đi vào partition nào (dựa theo key hoặc round-robin).
+Producer có thể cấu hình mức acknowledgment để đảm bảo độ tin cậy khi gửi (ví dụ: acks=1, acks=all).
+Consumer là thành phần đọc message từ Kafka.
+Consumer thường nằm trong consumer group, và Kafka sẽ phân chia partition cho từng consumer trong group để xử lý song song.
+Consumer theo dõi offset để biết mình đã đọc đến đâu, đảm bảo không mất hoặc đọc trùng dữ liệu.

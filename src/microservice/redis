@@ -1,0 +1,49 @@
+1. Redis là gì?
+    Redis (Remote Dictionary Server) là một in-memory data store — nghĩa là nó lưu dữ liệu trực tiếp trong RAM
+        (thay vì ổ cứng), giúp truy xuất cực nhanh.
+    Redis có thể hoạt động như:
+        Cache (bộ nhớ đệm)
+        Database (NoSQL key-value)
+        Message broker (Pub/Sub, Stream)
+    Tóm lại: Redis = “bộ nhớ key-value cực nhanh, hỗ trợ nhiều kiểu dữ liệu phức tạp, thường dùng để cache hoặc chia
+             sẻ dữ liệu giữa service.”
+2. Cách redis hoạt động
+    Redis lưu dữ liệu theo dạng key → value, ví dụ:
+        | Key              | Value                |
+        | ---------------- | -------------------- |
+        | `user:1001:name` | `"An Nguyen"`        |
+        | `cart:101`       | `["item1", "item2"]` |
+    Tất cả dữ liệu nằm trong RAM ⇒ tốc độ truy cập có thể đạt đến hàng trăm nghìn request/giây.
+    Redis cũng có thể persist (lưu xuống đĩa) định kỳ để không mất dữ liệu khi restart (qua snapshot RDB hoặc log AOF).
+3. Các data type redis hỗ trợ
+    Redis không chỉ có key-value đơn giản, mà hỗ trợ nhiều kiểu dữ liệu nâng cao, phù hợp với nhiều bài toán khác nhau:
+    | Kiểu dữ liệu          | Mô tả                                              | Ví dụ sử dụng                               |
+    | --------------------- | -------------------------------------------------- | ------------------------------------------- |
+    | **String**            | Dạng cơ bản nhất – chuỗi ký tự, số, JSON...        | `SET user:1 "An Nguyen"`                    |
+    | **List**              | Danh sách có thứ tự (giống mảng)                   | `LPUSH queue job1` → thêm vào đầu danh sách |
+    | **Set**               | Tập hợp không trùng lặp, không có thứ tự           | `SADD online_users 101 102`                 |
+    | **Sorted Set (ZSet)** | Tập hợp có điểm số (score) để sắp xếp              | Lưu leaderboard: `ZADD ranking 100 "user1"` |
+    | **Hash**              | Tập key-value con trong 1 key                      | `HSET user:1 name "An" age 25`              |
+    | **Bitmap / Bitfield** | Lưu trữ dữ liệu dạng bit                           | Đếm lượt truy cập/ngày                      |
+    | **HyperLogLog**       | Ước lượng số lượng phần tử duy nhất (unique count) | Đếm unique visitors                         |
+    | **Stream**            | Dữ liệu dạng luồng (streaming)                     | Ghi log sự kiện, giống Kafka nhỏ            |
+    | **Geospatial**        | Lưu vị trí địa lý (kinh độ/vĩ độ)                  | Tìm địa điểm gần người dùng                 |
+    | **Pub/Sub**           | Cơ chế publish–subscribe message                   | `PUBLISH news "New post!"`                  |
+4. Redis thường được dùng để ... trong ứng dụng Java Backend
+    | Mục đích                         | Mô tả                                                     | Ví dụ                              |
+    | -------------------------------- | --------------------------------------------------------- | ---------------------------------- |
+    | **Cache**                        | Lưu tạm dữ liệu tốn thời gian tính toán hoặc truy xuất DB | Cache user info, product list      |
+    | **Session store**                | Lưu session đăng nhập (thay cho DB)                       | Spring Session Redis               |
+    | **Rate limiting / Token bucket** | Giới hạn số request trong 1 khoảng thời gian              | API Gateway, Login attempt control |
+    | **Pub/Sub**                      | Gửi message giữa các service nhẹ                          | Thông báo real-time                |
+    | **Queue / Stream**               | Dùng như hàng đợi công việc                               | Job processing, event log          |
+    | **Leaderboard / Ranking**        | Dùng ZSet để xếp hạng người chơi                          | Game ranking, top user             |
+    | **Distributed lock**             | Dùng key tạm thời để khoá tài nguyên                      | Khoá order tránh double booking    |
+5. Ưu nhược
+    | Ưu điểm                                                 | Nhược điểm                                            |
+    | ------------------------------------------------------- | ----------------------------------------------------- |
+    | ⚡ **Tốc độ cực nhanh** (RAM-based)                      | 💾 **Dễ mất dữ liệu** nếu không bật persistence       |
+    | 📈 **Hỗ trợ nhiều cấu trúc dữ liệu mạnh**               | 🧠 **Chiếm RAM nhiều** → tốn chi phí                  |
+    | 🔄 **Dễ mở rộng & Cluster tốt**                         | ⚙️ **Phải quản lý TTL / cache invalidation** cẩn thận |
+    | 🧱 **Hỗ trợ transaction, Lua scripting, replication**   | 📉 Không phù hợp lưu dữ liệu cực lớn (RAM hạn chế)    |
+    | 🛠️ **Tích hợp dễ với Spring Boot (Spring Data Redis)** | 🧩 Cần thiết kế key và TTL hợp lý để tránh overflow   |
